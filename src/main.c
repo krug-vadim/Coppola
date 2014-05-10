@@ -3,8 +3,24 @@
 #include "def.h"
 
 void
+init(void)
+{
+	PROTOCOL_init();
+	UART_init();
+}
+
+void
+startup(void)
+{
+}
+
+void
 main(void)
 {
+	init();
+
+	startup();
+
 	FOREVER // alone
 	{
 
