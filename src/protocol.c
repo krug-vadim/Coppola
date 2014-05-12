@@ -7,6 +7,7 @@ static PROTOCOL_STATE_t state;
 void
 PROTOCOL_init(void)
 {
+	state = PROTOCOL_STATE_MAGIC1;
 }
 
 void

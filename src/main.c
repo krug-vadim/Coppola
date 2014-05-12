@@ -2,6 +2,8 @@
 
 #include "def.h"
 
+#include "uart.h"
+
 void
 init(void)
 {

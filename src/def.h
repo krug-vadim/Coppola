@@ -3,9 +3,11 @@
 
 #define FOREVER for(;;)
 
-typedef struct {
+typedef struct
+{
 	FALSE = 0x00,
 	TRUE  = 0xFF
-} BOOL_t;
+}
+BOOL_t;
 
 #endif
