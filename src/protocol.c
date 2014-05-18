@@ -2,6 +2,8 @@
 
 #include "protocol.h"
 
+#include "crc.h"
+
 static PROTOCOL_STATE_t state;
 
 void
