@@ -36,3 +36,19 @@ PROTOCOL_parse(uint8_t data)
 			break;
 	}
 }
+
+void
+PROTOCOL_parse_data(char *data)
+{
+	// to the rescue
+
+}
+
+void
+PROTOCOL_process(void)
+{
+	if ( !QUEUE_has_data() )
+		return;
+	for ( QUEUE_has_data() )
+		PROTOCOL_parse( UART_QUEUE_)
+}

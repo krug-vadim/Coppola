@@ -29,7 +29,8 @@ main(void)
 
 	FOREVER // alone
 	{
-
+		UART_process();
+		PROTOCOL_process();
 	}
 
 	return 0;
