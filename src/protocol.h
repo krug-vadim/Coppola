@@ -26,6 +26,7 @@ typedef struct __attribute__((packed))
 	PROTOCOL_FLAGS_t   flags;
 	uint8_t            reserved;
 	PROTOCOL_LENGTH_t  length;
+	PROTOCOL_CRC_t     crc;
 }
 PROTOCOL_HEADER_t;
 
@@ -33,7 +34,6 @@ typedef struct __attribute__((packed))
 {
 	PROTOCOL_HEADER_t header;
 	uint8_t           *data;
-	PROTOCOL_CRC_t    crc;
 }
 PROTOCOL_PACKET_t;
 

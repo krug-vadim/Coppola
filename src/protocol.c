@@ -81,7 +81,6 @@ PROTOCOL_parse(uint8_t data)
 
 			break;
 
-
 		default:
 			/* XXX: Invalid state */
 			break;
@@ -103,3 +102,13 @@ PROTOCOL_process(void)
 	for ( QUEUE_has_data() )
 		PROTOCOL_parse( UART_QUEUE_)
 }
+
+
+/*
+	wait_for_header_magic;
+	read_header;
+	[check_header_crc]
+	read_data;
+	check_crc;
+	execute;
+*/
