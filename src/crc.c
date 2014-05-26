@@ -1,9 +1,15 @@
 #include "crc.h"
 
-uint16_t
-crc_ccitt_update(uint16_t crc, uint8_t data)
+CRC_t
+CRC_init(void)
 {
-	uint16_t t;
+	return 0xFFFF;
+}
+
+CRC_t
+CRC_update(CRC_t crc, uint8_t data)
+{
+	CRC_t t;
 
 	data ^= crc & 255;
 	data ^= data << 4;

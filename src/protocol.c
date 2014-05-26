@@ -5,6 +5,11 @@
 #include "crc.h"
 
 static PROTOCOL_STATE_t state;
+static PROTOCOL_PACKET_t packet;
+
+static uint8_t *data_ptr;
+static uint8_t bytes_needed;
+static CRC_t crc;
 
 void
 PROTOCOL_init(void)
@@ -19,17 +24,63 @@ PROTOCOL_parse(uint8_t data)
 	{
 		case PROTOCOL_STATE_MAGIC1:
 			if ( data == PROTOCOL_MAGIC1 )
+			{
+				crc = CRC_init();
+				crc = CRC_update(crc, data);
+				data_ptr = (uint8_t)&packet;
+				*data_ptr++ = data;
+
 				state = PROTOCOL_STATE_MAGIC2;
+			}
 			break;
 
 		case PROTOCOL_STATE_MAGIC2:
 			if ( data == PROTOCOL_MAGIC2 )
-				state = PROTOCOL_STATE_RECEIVE;
+			{
+				bytes_needed = sizeof(PROTOCOL_HEADER_t) - sizeof(PROTOCOL_MAGIC_t);
+				crc = CRC_update(crc, data);
+				*data_ptr++ = data;
+				state = PROTOCOL_STATE_HEADER;
+			}
 			else if ( data == PROTOCOL_MAGIC1 )
 				; /* DO NOTHING */
 			else
 				state = PROTOCOL_STATE_MAGIC1;
 			break;
+
+		case PROTOCOL_STATE_HEADER:
+			*data_ptr++ = data;
+			crc = CRC_update(crc, data);
+
+			bytes_needed--;
+			if ( bytes_needed )
+				break;
+
+			bytes_needed = packet.header.size;
+			state = PROTOCOL_STATE_DATA;
+			break;
+
+		case PROTOCOL_STATE_DATA:
+			*data_ptr++ = data;
+
+			bytes_needed--;
+			if ( bytes_needed )
+				break;
+
+			bytes_needed = sizeof(CRC_t);
+			data_ptr = (uint8_t)&packet.crc;
+			state = PROTOCOL_STATE_CRC;
+			break;
+
+		case PROTOCOL_STATE_CRC:
+			*data_ptr++ = data;
+
+			bytes_needed--;
+			if ( bytes_needed )
+				break;
+
+			break;
+
 
 		default:
 			/* XXX: Invalid state */

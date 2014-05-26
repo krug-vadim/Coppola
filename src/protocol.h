@@ -5,9 +5,13 @@ typedef enum
 {
 	PROTOCOL_STATE_MAGIC1,
 	PROTOCOL_STATE_MAGIC2,
+	PROTOCOL_STATE_HEADER,
+	PROTOCOL_STATE_DATA,
+	PROTOCOL_STATE_CRC,
 }
 PROTOCOL_STATE_t;
 
+typedef uint16_t PROTOCOL_MAGIC_t;
 typedef uint16_t PROTOCOL_ID_t;
 typedef uint8_t  PROTOCOL_VERSION_t;
 typedef uint8_t  PROTOCOL_FLAGS_t;
@@ -16,6 +20,7 @@ typedef uint16_t PROTOCOL_CRC_t;
 
 typedef struct __attribute__((packed))
 {
+	PROTOCOL_MAGIC_t   magic;
 	PROTOCOL_ID_t      id;
 	PROTOCOL_VERSION_t version;
 	PROTOCOL_FLAGS_t   flags;
