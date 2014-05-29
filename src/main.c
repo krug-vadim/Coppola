@@ -5,11 +5,10 @@ THIS SOFTWARE HAS NOT BEEN TESTED
 AND MAY CONTAIN IRREGULARITIES AND DEFECTS NOT FOUND IN PRODUCTION SOFTWARE.
 */
 
-#include <msp430.h>
-
 #include "def.h"
 
 #include "uart.h"
+#include "protocol.h"
 
 void
 init(void)
@@ -23,17 +22,17 @@ startup(void)
 {
 }
 
-void
+int
 main(void)
 {
 	init();
 
 	startup();
 
-	FOREVER // alone
+	FOREVER
 	{
-		UART_process();
-		PROTOCOL_process();
+		/*UART_process();
+		PROTOCOL_process();*/
 	}
 
 	return 0;

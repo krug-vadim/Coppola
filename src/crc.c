@@ -1,3 +1,4 @@
+#include "def.h"
 #include "crc.h"
 
 CRC_t

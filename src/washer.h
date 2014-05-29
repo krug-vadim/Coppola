@@ -24,4 +24,4 @@ typedef struct
 }
 WASHER_t;
 
-#endif // WASHER_H
+#endif

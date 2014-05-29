@@ -1,18 +1,24 @@
 PROGRAM      = Coppola
 
-CC           = msp430-elf-gcc
+CC           = /usr/share/mspgcc-ti/bin/msp430-elf-gcc
 
 CPU          = msp430
 DEVICE       = msp430g2553
 
-CFLAGS       = -mcpu=$(CPU) -mmcu=$(DEVICE) -Os -Wall -pedantic -Werror
+DEVICE_FLAGS = -mcpu=$(CPU) -mmcu=$(DEVICE)
+
+CFLAGS       =  $(DEVICE_FLAGS) -Os -Wall -pedantic -Werror
 
 INCLUDE_PATH = /usr/share/mspgcc-ti/msp430-elf/include
 LINKER_PATH  = /usr/share/mspgcc-ti/msp430-elf/include
-LDFLAGS      = -I$(INCLUDE_PATH) -L$(LINKER_PATH)
+LFLAGS      = $(DEVICE_FLAGS) -I$(INCLUDE_PATH) -L$(LINKER_PATH)
 
 #SOURCES     := $(wildcard src/*.c)
-SOURCES     := $(wildcard src/*.c)
+#SOURCES     := $(wildcard src/*.c)
+SOURCES     := src/main.c \
+               src/protocol.c \
+               src/crc.c \
+               src/uart.c
 OBJECTS     := $(patsubst %.c, %.o, $(SOURCES))
 
 # top-level rule to create the program.

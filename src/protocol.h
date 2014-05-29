@@ -1,7 +1,7 @@
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
 
-typedef enum
+/*typedef enum
 {
 	PROTOCOL_STATE_MAGIC1,
 	PROTOCOL_STATE_MAGIC2,
@@ -9,7 +9,7 @@ typedef enum
 	PROTOCOL_STATE_DATA,
 	PROTOCOL_STATE_CRC,
 }
-PROTOCOL_STATE_t;
+PROTOCOL_STATE_t;*/
 
 typedef uint16_t PROTOCOL_MAGIC_t;
 typedef uint16_t PROTOCOL_ID_t;
@@ -25,8 +25,7 @@ typedef struct __attribute__((packed))
 	PROTOCOL_VERSION_t version;
 	PROTOCOL_FLAGS_t   flags;
 	uint8_t            reserved;
-	PROTOCOL_LENGTH_t  length;
-	PROTOCOL_CRC_t     crc;
+	PROTOCOL_LENGTH_t  size;
 }
 PROTOCOL_HEADER_t;
 
@@ -34,6 +33,7 @@ typedef struct __attribute__((packed))
 {
 	PROTOCOL_HEADER_t header;
 	uint8_t           *data;
+	PROTOCOL_CRC_t     crc;
 }
 PROTOCOL_PACKET_t;
 
@@ -43,4 +43,4 @@ PROTOCOL_PACKET_t;
 void PROTOCOL_init(void);
 void PROTOCOL_parse(uint8_t data);
 
-#endif // PROTOCOL_H
+#endif

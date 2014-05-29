@@ -1,106 +1,109 @@
 #include "def.h"
-
 #include "protocol.h"
-
 #include "crc.h"
 
-static PROTOCOL_STATE_t state;
+typedef void* (*PROTOCOL_PARSER_VOID_ptr)(uint8_t data);
+typedef PROTOCOL_PARSER_VOID_ptr (*PROTOCOL_PARSER_ptr)(uint8_t data);
+
+/*typedef PROTOCOL_PARSER_t* (*PROTOCOL_PARSER_t)(uint8_t data);*/
+
+static PROTOCOL_PARSER_ptr parser;
 static PROTOCOL_PACKET_t packet;
 
 static uint8_t *data_ptr;
 static uint8_t bytes_needed;
 static CRC_t crc;
 
+PROTOCOL_PARSER_VOID_ptr PROTOCOL_parse_magic1(uint8_t data);
+PROTOCOL_PARSER_VOID_ptr PROTOCOL_parse_magic2(uint8_t data);
+PROTOCOL_PARSER_VOID_ptr PROTOCOL_parse_header(uint8_t data);
+PROTOCOL_PARSER_VOID_ptr PROTOCOL_parse_data(uint8_t data);
+PROTOCOL_PARSER_VOID_ptr PROTOCOL_parse_crc(uint8_t data);
+
 void
 PROTOCOL_init(void)
 {
-	state = PROTOCOL_STATE_MAGIC1;
+	parser = (PROTOCOL_PARSER_ptr)PROTOCOL_parse_magic1;
 }
 
-void
-PROTOCOL_parse(uint8_t data)
+PROTOCOL_PARSER_VOID_ptr
+PROTOCOL_parse_magic1(uint8_t data)
 {
-	switch (state)
+	if ( data != PROTOCOL_MAGIC1 )
+		return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_magic1;
+
+	crc = CRC_init();
+	crc = CRC_update(crc, data);
+	data_ptr = (uint8_t *)&packet;
+	*data_ptr++ = data;
+
+	return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_magic2;
+}
+
+PROTOCOL_PARSER_VOID_ptr
+PROTOCOL_parse_magic2(uint8_t data)
+{
+	if ( data == PROTOCOL_MAGIC2 )
 	{
-		case PROTOCOL_STATE_MAGIC1:
-			if ( data == PROTOCOL_MAGIC1 )
-			{
-				crc = CRC_init();
-				crc = CRC_update(crc, data);
-				data_ptr = (uint8_t)&packet;
-				*data_ptr++ = data;
-
-				state = PROTOCOL_STATE_MAGIC2;
-			}
-			break;
-
-		case PROTOCOL_STATE_MAGIC2:
-			if ( data == PROTOCOL_MAGIC2 )
-			{
-				bytes_needed = sizeof(PROTOCOL_HEADER_t) - sizeof(PROTOCOL_MAGIC_t);
-				crc = CRC_update(crc, data);
-				*data_ptr++ = data;
-				state = PROTOCOL_STATE_HEADER;
-			}
-			else if ( data == PROTOCOL_MAGIC1 )
-				; /* DO NOTHING */
-			else
-				state = PROTOCOL_STATE_MAGIC1;
-			break;
-
-		case PROTOCOL_STATE_HEADER:
-			*data_ptr++ = data;
-			crc = CRC_update(crc, data);
-
-			bytes_needed--;
-			if ( bytes_needed )
-				break;
-
-			bytes_needed = packet.header.size;
-			state = PROTOCOL_STATE_DATA;
-			break;
-
-		case PROTOCOL_STATE_DATA:
-			*data_ptr++ = data;
-
-			bytes_needed--;
-			if ( bytes_needed )
-				break;
-
-			bytes_needed = sizeof(CRC_t);
-			data_ptr = (uint8_t)&packet.crc;
-			state = PROTOCOL_STATE_CRC;
-			break;
-
-		case PROTOCOL_STATE_CRC:
-			*data_ptr++ = data;
-
-			bytes_needed--;
-			if ( bytes_needed )
-				break;
-
-			break;
-
-		default:
-			/* XXX: Invalid state */
-			break;
+		bytes_needed = sizeof(PROTOCOL_HEADER_t) - sizeof(PROTOCOL_MAGIC_t);
+		crc = CRC_update(crc, data);
+		*data_ptr++ = data;
+		return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_header;
 	}
+	else if ( data == PROTOCOL_MAGIC1 )
+		return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_magic2;
+	else
+		return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_magic1;
 }
 
-void
-PROTOCOL_parse_data(char *data)
+PROTOCOL_PARSER_VOID_ptr
+PROTOCOL_parse_header(uint8_t data)
 {
-	// to the rescue
+	*data_ptr++ = data;
+	crc = CRC_update(crc, data);
 
+	bytes_needed--;
+	if ( bytes_needed )
+		return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_header;
+
+	bytes_needed = packet.header.size;
+
+	return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_data;
+}
+
+PROTOCOL_PARSER_VOID_ptr
+PROTOCOL_parse_data(uint8_t data)
+{
+	*data_ptr++ = data;
+
+	bytes_needed--;
+	if ( bytes_needed )
+		return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_data;
+
+	bytes_needed = sizeof(CRC_t);
+	data_ptr = (uint8_t *)&packet.crc;
+
+	return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_crc;
+}
+
+PROTOCOL_PARSER_VOID_ptr
+PROTOCOL_parse_crc(uint8_t data)
+{
+	*data_ptr++ = data;
+
+	bytes_needed--;
+	if ( bytes_needed )
+		return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_crc;
+
+	/* XXX: NEED TO DO SOMETHING */
+
+	return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_magic1;
 }
 
 void
 PROTOCOL_process(void)
 {
-	if ( !QUEUE_has_data() )
-		return;
-	for ( QUEUE_has_data() )
-		PROTOCOL_parse( UART_QUEUE_)
+	parser = (PROTOCOL_PARSER_ptr)(*parser)(0x00);
 }
 
 

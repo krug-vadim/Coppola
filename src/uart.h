@@ -3,4 +3,4 @@
 
 void UART_init(void);
 
-#endif // UART_H
+#endif

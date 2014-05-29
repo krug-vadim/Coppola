@@ -25,4 +25,4 @@ uint8_t QUEUE_read_byte(void);
 uint8_t* QUEUE_head(void);
 void QUEUE_skip(QUEUE_SIZE_t n);
 
-#endif // QUEUE_H
+#endif
