@@ -1,0 +1,31 @@
+PROGRAM      = Coppola
+
+CC           = msp430-elf-gcc
+
+CPU          = msp430
+DEVICE       = msp430g2553
+
+CFLAGS       = -mcpu=$(CPU) -mmcu=$(DEVICE) -Os -Wall -pedantic -Werror
+
+INCLUDE_PATH = /usr/share/mspgcc-ti/msp430-elf/include
+LINKER_PATH  = /usr/share/mspgcc-ti/msp430-elf/include
+LDFLAGS      = -I$(INCLUDE_PATH) -L$(LINKER_PATH)
+
+#SOURCES     := $(wildcard src/*.c)
+SOURCES     := $(wildcard src/*.c)
+OBJECTS     := $(patsubst %.c, %.o, $(SOURCES))
+
+# top-level rule to create the program.
+all: $(PROGRAM)
+
+$(PROGRAM) : $(PROGRAM).elf
+
+%.elf: $(OBJECTS)
+	$(CC) $(OBJECTS) -o $@ $(LFLAGS)
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# cleaning everything that can be automatically recreated with "make".
+clean:
+	rm $(PROG) *.o

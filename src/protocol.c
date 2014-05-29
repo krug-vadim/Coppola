@@ -105,6 +105,11 @@ PROTOCOL_process(void)
 
 
 /*
+
+	#double narkomany mode on
+	PROTOCOL_set_rx_func(UART_rx);
+	PROTOCOL_set_tx_func(UART_tx);
+
 	wait_for_header_magic;
 	read_header;
 	[check_header_crc]
