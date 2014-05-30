@@ -13,6 +13,14 @@ AND MAY CONTAIN IRREGULARITIES AND DEFECTS NOT FOUND IN PRODUCTION SOFTWARE.
 void
 init(void)
 {
+	/* Stop WDT */
+	WDTCTL = WDTPW + WDTHOLD;
+
+	/* Use Calibration values for 1MHz Clock DCO*/
+	DCOCTL = 0;
+	BCSCTL1 = CALBC1_1MHZ;
+	DCOCTL = CALDCO_1MHZ;
+
 	PROTOCOL_init();
 	UART_init();
 }
@@ -31,8 +39,9 @@ main(void)
 
 	FOREVER
 	{
-		/*UART_process();
-		PROTOCOL_process();*/
+		UART_process();
+
+		PROTOCOL_process();
 	}
 
 	return 0;

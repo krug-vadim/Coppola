@@ -9,6 +9,7 @@ typedef PROTOCOL_PARSER_VOID_ptr (*PROTOCOL_PARSER_ptr)(uint8_t data);
 
 static PROTOCOL_PARSER_ptr parser;
 static PROTOCOL_PACKET_t packet;
+static PROTOCOL_PACKET_t ack_packet;
 
 static uint8_t *data_ptr;
 static uint8_t bytes_needed;
@@ -96,8 +97,15 @@ PROTOCOL_parse_crc(uint8_t data)
 		return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_crc;
 
 	/* XXX: NEED TO DO SOMETHING */
+	if ( parse_packet() )
+		flags |=
 
 	return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_magic1;
+}
+
+void
+PROTOCOL_ack_send(uint8_t flags)
+{
 }
 
 void

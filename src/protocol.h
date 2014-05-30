@@ -32,8 +32,8 @@ PROTOCOL_HEADER_t;
 typedef struct __attribute__((packed))
 {
 	PROTOCOL_HEADER_t header;
-	uint8_t           *data;
-	PROTOCOL_CRC_t     crc;
+	uint8_t           data[32];
+	PROTOCOL_CRC_t    crc;
 }
 PROTOCOL_PACKET_t;
 
@@ -41,6 +41,6 @@ PROTOCOL_PACKET_t;
 #define PROTOCOL_MAGIC2 0xAF
 
 void PROTOCOL_init(void);
-void PROTOCOL_parse(uint8_t data);
+void PROTOCOL_process(void);
 
 #endif
