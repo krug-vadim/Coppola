@@ -1,6 +1,10 @@
 #include "def.h"
 #include "uart.h"
 
+#include "queue.h"
+
+static QUEUE_t queue;
+
 static uint8_t counter;
 
 void
@@ -27,18 +31,55 @@ UART_init(void)
 	counter = 0;
 }
 
-BOOL_t
-UART_has_data(void)
+BOOL_t 
+UART_write(uint8_t *src, SIZE_t cnt)
 {
-	return ( IFG2 & UCA0RXIFG );
+	return QUEUE_write(&queue, src, cnt);
+}
+
+BOOL_t
+UART_read(uint8_t *dst, SIZE_t cnt)
+{
+	return QUEUE_read(&queue, dst, cnt);
+}
+
+SIZE_t
+UART_put(char *str)
+{
+	return QUEUE_put(&queue, str);
+}
+
+BOOL_t
+UART_tx(void)
+{
+	uint8_t byte;
+
+	if ( queue.used == 0 ) 
+		return TRUE;
+	else if ( QUEUE_read_byte(&queue, &byte) )
+	{
+		UCA0TXBUF = byte;
+		return TRUE;
+	}
+	else
+		return FALSE;
+}
+
+BOOL_t
+UART_rx(void)
+{
+	if ( (queue.size - queue.used) == 0 )
+		return FALSE;
+	else
+		return ( QUEUE_write_byte(&queue, UCA0RXBUF) );
 }
 
 void
 UART_process(void)
 {
-	if ( UART_has_data() )
-		counter = UCA0RXBUF;
+	if ( UART_CAN_TX() )
+		UART_tx();
 
-	if ( (IFG2 & UCA0TXIFG) )
-		UCA0TXBUF = counter;
+	if ( UART_CAN_RX() )
+		UART_rx();
 }

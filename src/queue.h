@@ -1,28 +1,28 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 
-/* QUEUE_SIZE should be power of two */
-#define QUEUE_SIZE 1024
-
 typedef uint8_t QUEUE_SIZE_t;
 
 typedef struct
 {
 	QUEUE_SIZE_t used;
+	QUEUE_SIZE_t size;
 
-	uint8_t *write_pos;
-	uint8_t *read_pos;
+	QUEUE_SIZE_t write_pos;
+	QUEUE_SIZE_t read_pos;
 
 	uint8_t *data;
 }
 QUEUE_t;
 
-void QUEUE_init(void);
+void QUEUE_init(QUEUE_t *queue, uint8_t *data, QUEUE_SIZE_t size);
 
-void QUEUE_write_byte(uint8_t byte);
-uint8_t QUEUE_read_byte(void);
+BOOL_t QUEUE_write(QUEUE_t *queue, uint8_t *src, QUEUE_SIZE_t cnt);
+BOOL_t QUEUE_read(QUEUE_t *queue, uint8_t *dst, QUEUE_SIZE_t cnt);
 
-uint8_t* QUEUE_head(void);
-void QUEUE_skip(QUEUE_SIZE_t n);
+QUEUE_SIZE_t QUEUE_put(QUEUE_t *queue, char *str);
+
+BOOL_t QUEUE_write_byte(QUEUE_t *queue, uint8_t src);
+BOOL_t QUEUE_read_byte(QUEUE_t *queue, uint8_t *dst);
 
 #endif

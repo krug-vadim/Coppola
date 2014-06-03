@@ -1,51 +1,115 @@
+#include "def.h"
 #include "queue.h"
 
-typedef struct
-{
-	QUEUE_SIZE_t used;
-	char *data;
-}
-QUEUE_t;
-
-static QUEUE_t uart_queue;
-static uint8_t uart_data[QUEUE_SIZE];
-
 void
-QUEUE_init(void)
+QUEUE_init(QUEUE_t *queue, uint8_t *data, QUEUE_SIZE_t size)
 {
-	uart_queue.used = 0;
-	uart_queue.data = uart_data;
+	queue->size = size;
+	queue->used = 0;
+	queue->read_pos = 0;
+	queue->write_pos = 0;
+	queue->data = data;
 }
 
-void
-QUEUE_write_byte(uint8_t byte)
+BOOL_t
+QUEUE_write(QUEUE_t *queue, uint8_t *src, QUEUE_SIZE_t cnt)
 {
-	uart_queue.used++;
-	*uart_queue.write_pos = byte;
-	uart_queue.write_pos++;
+	if ( (queue->size - queue->used) < cnt )
+		return FALSE;
+
+	queue->used += cnt;
+
+	for( ; cnt; cnt--)
+	{
+		queue->data[queue->write_pos] = *src;
+
+		src++;
+		queue->write_pos++;
+
+		if ( queue->write_pos >= queue->size )
+			queue->write_pos = 0;
+	}
+
+	return TRUE;
 }
 
-uint8_t
-QUEUE_read_byte(void)
+BOOL_t
+QUEUE_read(QUEUE_t *queue, uint8_t *dst, QUEUE_SIZE_t cnt)
 {
-	uint8_t t;
+	if ( queue->used < cnt )
+		return FALSE;
 
-	uart_queue.used--;
-	t = uart_queue.read_pos;
-	uart_queue.read_pos++;
+	queue->used -= cnt;
 
-	return t;
+	for( ; cnt; cnt--)
+	{
+		*dst = queue->data[queue->read_pos];
+
+		dst++;
+		queue->read_pos++;
+
+		if ( queue->read_pos >= queue->size )
+			queue->read_pos = 0;
+	}
+
+	return TRUE;
 }
 
-uint8_t
-QUEUE_head(void)
+QUEUE_SIZE_t
+QUEUE_put(QUEUE_t *queue, char *str)
 {
-	return uart_queue.data;
+	QUEUE_SIZE_t cnt;
+
+	cnt = 0;
+
+	while ( queue->used < queue->size )
+	{
+		queue->data[queue->write_pos] = *str;
+
+		str++;
+		queue->used++;
+		queue->write_pos++;
+
+		if ( queue->write_pos >= queue->size )
+			queue->write_pos = 0;
+
+		if ( !str )
+			return cnt;
+	}
+
+	return cnt;
 }
 
-void
-QUEUE_skip(QUEUE_SIZE_t n)
+BOOL_t
+QUEUE_write_byte(QUEUE_t *queue, uint8_t src)
 {
-	uart_queue.used -= n;
-	uart_queue.data += (n & QUEUE_SIZE_MASK);
+	if ( (queue->size - queue->used) == 0 )
+		return FALSE;
+
+	queue->used++;
+
+	queue->data[queue->write_pos] = src;
+	queue->write_pos++;
+
+	if ( queue->write_pos >= queue->size )
+		queue->write_pos = 0;
+
+	return TRUE;
+}
+
+BOOL_t
+QUEUE_read_byte(QUEUE_t *queue, uint8_t *dst)
+{
+	if ( queue->used == 0 )
+		return FALSE;
+
+	queue->used--;
+
+	*dst = queue->data[queue->read_pos];
+	queue->read_pos++;
+
+	if ( queue->read_pos >= queue->size )
+		queue->read_pos = 0;
+
+	return TRUE;
 }

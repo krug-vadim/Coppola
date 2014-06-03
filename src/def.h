@@ -8,6 +8,8 @@
 
 #define FOREVER for(;;)
 
+typedef uint8_t SIZE_t;
+
 typedef enum
 {
 	FALSE = 0x00,

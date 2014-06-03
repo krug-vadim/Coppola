@@ -28,6 +28,7 @@ init(void)
 void
 startup(void)
 {
+	UART_put("HELLO\r\nwasher/coppola\r\n");
 }
 
 int
