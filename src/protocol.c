@@ -15,6 +15,11 @@ static uint8_t *data_ptr;
 static uint8_t bytes_needed;
 static CRC_t crc;
 
+static IO_FUNC_ptr            write;
+static IO_FUNC_ptr            read;
+static IO_FUNC_BYTE_WRITE_ptr write_byte;
+static IO_FUNC_BYTE_READ_ptr  read_byte;
+
 PROTOCOL_PARSER_VOID_ptr PROTOCOL_parse_magic1(uint8_t data);
 PROTOCOL_PARSER_VOID_ptr PROTOCOL_parse_magic2(uint8_t data);
 PROTOCOL_PARSER_VOID_ptr PROTOCOL_parse_header(uint8_t data);
@@ -25,6 +30,8 @@ void
 PROTOCOL_init(void)
 {
 	parser = (PROTOCOL_PARSER_ptr)PROTOCOL_parse_magic1;
+
+	/* TODO: fn pointers to dumb fn */
 }
 
 PROTOCOL_PARSER_VOID_ptr
@@ -111,9 +118,35 @@ PROTOCOL_ack_send(uint8_t flags)
 void
 PROTOCOL_process(void)
 {
-	parser = (PROTOCOL_PARSER_ptr)(*parser)(0x00);
+	uint8_t byte;
+
+	if ( read_byte(&byte) )
+		parser = (PROTOCOL_PARSER_ptr)(*parser)(byte);
 }
 
+void
+PROTOCOL_set_write_func(IO_FUNC_ptr write_fn)
+{
+	write = write_fn;
+}
+
+void
+PROTOCOL_set_read_func(IO_FUNC_ptr read_fn)
+{
+	read = read_fn;
+}
+
+void
+PROTOCOL_set_write_byte_func(IO_FUNC_BYTE_WRITE_ptr write_byte_fn)
+{
+	write_byte = write_byte_fn;
+}
+
+void
+PROTOCOL_set_read_byte_func(IO_FUNC_BYTE_READ_ptr read_byte_fn)
+{
+	read_byte = read_byte_fn;
+}
 
 /*
 

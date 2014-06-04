@@ -43,4 +43,10 @@ PROTOCOL_PACKET_t;
 void PROTOCOL_init(void);
 void PROTOCOL_process(void);
 
+void PROTOCOL_set_write_func(IO_FUNC_ptr write_fn);
+void PROTOCOL_set_read_func(IO_FUNC_ptr read_fn);
+
+void PROTOCOL_set_write_byte_func(IO_FUNC_BYTE_WRITE_ptr write_byte_fn);
+void PROTOCOL_set_read_byte_func(IO_FUNC_BYTE_READ_ptr read_byte_fn);
+
 #endif

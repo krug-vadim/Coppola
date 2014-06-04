@@ -11,7 +11,7 @@ AND MAY CONTAIN IRREGULARITIES AND DEFECTS NOT FOUND IN PRODUCTION SOFTWARE.
 #include "protocol.h"
 
 void
-init(void)
+hw_init(void)
 {
 	/* Stop WDT */
 	WDTCTL = WDTPW + WDTHOLD;
@@ -20,9 +20,20 @@ init(void)
 	DCOCTL = 0;
 	BCSCTL1 = CALBC1_1MHZ;
 	DCOCTL = CALDCO_1MHZ;
+}
 
-	PROTOCOL_init();
+void
+init(void)
+{
+	hw_init();
+
+	/* modules init */
 	UART_init();
+	PROTOCOL_init();
+
+	/* post setup */
+	PROTOCOL_set_write_func(UART_write);
+	PROTOCOL_set_read_func(UART_read);
 }
 
 void
