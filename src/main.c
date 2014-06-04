@@ -21,9 +21,21 @@ hw_init(void)
 	BCSCTL1 = CALBC1_1MHZ;
 	DCOCTL = CALDCO_1MHZ;
 
+	/* SMCLK = DCO / DIVS = nMHz */
+	BCSCTL2 = 0;
+	/* ACLK = VLO = ~ 12 KHz */
+	BCSCTL3 |= LFXT1S_2;
+
 	/* */
 	P1OUT = BIT0 + BIT6;
 	P1DIR = BIT0 + BIT6;
+
+	TA0CCR0 = 256UL;
+	TA0CCTL0 |= CCIE;
+	TA0CTL = TASSEL_1 /* Timer A clock source select: 1 - ACLK */
+	       | ID_0     /* Timer A input divider: 0 - /1 */
+	       | MC_1     /* Timer A mode control: 1 - Up to CCR0 */
+	       ;
 }
 
 void
@@ -55,6 +67,29 @@ main(void)
 
 	startup();
 
+	__enable_interrupt();
+
+	UCA0TXBUF = 'A';
+
+	for (;;)
+	{
+		UART_process();
+	}
+
+	return 0;
+}
+
+/*int
+main(void)
+{
+	init();
+
+	startup();
+
+	hw_init();
+
+	__enable_interrupt();
+
 	FOREVER
 	{
 		UART_process();
@@ -63,4 +98,10 @@ main(void)
 	}
 
 	return 0;
+}*/
+
+/* TIMERA0 interrupt service routine */
+void __attribute__((interrupt(TIMER0_A0_VECTOR))) Timer_A(void)
+{
+	P1OUT ^= (BIT6);
 }

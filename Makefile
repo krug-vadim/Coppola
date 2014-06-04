@@ -18,7 +18,8 @@ LFLAGS      = $(DEVICE_FLAGS) -I$(INCLUDE_PATH) -L$(LINKER_PATH)
 SOURCES     := src/main.c \
                src/protocol.c \
                src/crc.c \
-               src/uart.c
+               src/uart.c \
+               src/queue.c
 OBJECTS     := $(patsubst %.c, %.o, $(SOURCES))
 
 # top-level rule to create the program.

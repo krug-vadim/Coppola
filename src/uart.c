@@ -18,8 +18,8 @@ UART_hw_init(void)
 	UCA0CTL1 = UCSWRST;
 
 	/* Configure Pin Muxing P1.1 RXD and P1.2 TXD */
-	P1SEL = BIT1 | BIT2 ;
-	P1SEL2 = BIT1 | BIT2;
+	P1SEL  = BIT1 + BIT2 ;
+	P1SEL2 = BIT1 + BIT2;
 
 	/* Configure */
 
@@ -31,6 +31,9 @@ UART_hw_init(void)
 
 	/* Take UCA0 out of reset */
 	UCA0CTL1 &= ~UCSWRST;
+
+	/*IE2 |= UCA0RXIE;
+	IE2 |= UCA0TXIE;*/
 }
 
 void
@@ -42,13 +45,13 @@ UART_init(void)
 	QUEUE_init(&queue_rx, data_rx, UART_QUEUE_SIZE);
 }
 
-BOOL_t 
+BOOL_t
 UART_write(uint8_t *src, SIZE_t cnt)
 {
 	return QUEUE_write(&queue_tx, src, cnt);
 }
 
-BOOL_t 
+BOOL_t
 UART_write_byte(uint8_t byte)
 {
 	return QUEUE_write_byte(&queue_tx, byte);
@@ -77,7 +80,7 @@ UART_tx(void)
 {
 	uint8_t byte;
 
-	if ( queue_tx.used == 0 ) 
+	if ( queue_tx.used == 0 )
 		return TRUE;
 	else if ( QUEUE_read_byte(&queue_tx, &byte) )
 	{
@@ -101,7 +104,7 @@ void
 UART_process(void)
 {
 	if ( UART_CAN_TX() )
-		UCA0TXBUF = 'A';/*UART_tx();*/
+		UART_tx();
 
 	if ( UART_CAN_RX() )
 	{
