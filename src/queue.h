@@ -1,7 +1,7 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 
-typedef uint8_t QUEUE_SIZE_t;
+typedef SIZE_t QUEUE_SIZE_t;
 
 typedef struct
 {

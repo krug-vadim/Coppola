@@ -12,4 +12,7 @@ BOOL_t UART_write(uint8_t *src, SIZE_t cnt);
 BOOL_t UART_read(uint8_t *dst, SIZE_t cnt);
 SIZE_t UART_put(char *str);
 
+BOOL_t UART_write_byte(uint8_t byte);
+BOOL_t UART_read_byte(uint8_t *byte);
+
 #endif

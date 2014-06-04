@@ -8,7 +8,7 @@
 
 #define FOREVER for(;;)
 
-typedef uint8_t SIZE_t;
+typedef uint16_t SIZE_t;
 
 typedef enum
 {
