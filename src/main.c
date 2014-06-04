@@ -20,6 +20,10 @@ hw_init(void)
 	DCOCTL = 0;
 	BCSCTL1 = CALBC1_1MHZ;
 	DCOCTL = CALDCO_1MHZ;
+
+	/* */
+	P1OUT = BIT0 + BIT6;
+	P1DIR = BIT0 + BIT6;
 }
 
 void
@@ -34,6 +38,8 @@ init(void)
 	/* post setup */
 	PROTOCOL_set_write_func(UART_write);
 	PROTOCOL_set_read_func(UART_read);
+	PROTOCOL_set_write_byte_func(UART_write_byte);
+	PROTOCOL_set_read_byte_func(UART_read_byte);
 }
 
 void

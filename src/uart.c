@@ -101,8 +101,12 @@ void
 UART_process(void)
 {
 	if ( UART_CAN_TX() )
-		UART_tx();
+		UCA0TXBUF = 'A';/*UART_tx();*/
 
 	if ( UART_CAN_RX() )
-		UART_rx();
+	{
+		P1OUT ^= 0x01;
+		/*UART_rx();*/
+
+	}
 }
