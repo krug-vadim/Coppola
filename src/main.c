@@ -73,7 +73,16 @@ main(void)
 
 	for (;;)
 	{
-		UART_process();
+		/*UART_process();*/
+
+		while (!(IFG2&UCA0TXIFG)) ;
+		UCA0TXBUF = 'h';
+
+		while (!(IFG2&UCA0TXIFG)) ;
+		UCA0TXBUF = 'u';
+
+		while (!(IFG2&UCA0TXIFG)) ;
+		UCA0TXBUF = 'i';
 	}
 
 	return 0;
