@@ -16,6 +16,12 @@ hw_init(void)
 	/* Stop WDT */
 	WDTCTL = WDTPW + WDTHOLD;
 
+	/* XXX: CHANGE TO ERROR */
+	if (CALBC1_1MHZ == 0xFF || CALDCO_1MHZ == 0xFF)
+	{
+		while(TRUE);
+	}
+
 	/* Use Calibration values for 1MHz Clock DCO*/
 	DCOCTL = 0;
 	BCSCTL1 = CALBC1_1MHZ;
@@ -29,13 +35,6 @@ hw_init(void)
 	/* */
 	P1OUT = BIT0 + BIT6;
 	P1DIR = BIT0 + BIT6;
-
-	TA0CCR0 = 256UL;
-	TA0CCTL0 |= CCIE;
-	TA0CTL = TASSEL_1 /* Timer A clock source select: 1 - ACLK */
-	       | ID_0     /* Timer A input divider: 0 - /1 */
-	       | MC_1     /* Timer A mode control: 1 - Up to CCR0 */
-	       ;
 }
 
 void
@@ -57,7 +56,9 @@ init(void)
 void
 startup(void)
 {
-	UART_put("HELLO\r\nwasher/coppola\r\n");
+	UART_put("\r\n\r\n\r\nYOBA WASHER LTD.\r\nCoppola\r\n");
+	UART_put("version: "GITSHA"\r\n");
+	UART_put("  build: "BUILD_DATETIME"\r\n");
 }
 
 int
@@ -69,45 +70,14 @@ main(void)
 
 	__enable_interrupt();
 
-	UCA0TXBUF = 'A';
-
 	for (;;)
 	{
-		/*UART_process();*/
-
-		while (!(IFG2&UCA0TXIFG)) ;
-		UCA0TXBUF = 'h';
-
-		while (!(IFG2&UCA0TXIFG)) ;
-		UCA0TXBUF = 'u';
-
-		while (!(IFG2&UCA0TXIFG)) ;
-		UCA0TXBUF = 'i';
-	}
-
-	return 0;
-}
-
-/*int
-main(void)
-{
-	init();
-
-	startup();
-
-	hw_init();
-
-	__enable_interrupt();
-
-	FOREVER
-	{
 		UART_process();
-
 		PROTOCOL_process();
 	}
 
 	return 0;
-}*/
+}
 
 /* TIMERA0 interrupt service routine */
 void __attribute__((interrupt(TIMER0_A0_VECTOR))) Timer_A(void)

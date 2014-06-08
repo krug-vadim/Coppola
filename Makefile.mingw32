@@ -1,22 +1,27 @@
 PROGRAM      = Coppola
 
-CC           = msp430-elf-gcc
-OBJCOPY      = msp430-elf-objcopy
+CC           = D:/dev/msp430/msp430gcc/bin/msp430-elf-gcc
+OBJCOPY      = D:/dev/msp430/msp430gcc/bin/msp430-elf-objcopy
 
 CPU          = msp430
 DEVICE       = msp430g2553
 
 DEVICE_FLAGS = -mcpu=$(CPU) -mmcu=$(DEVICE)
 
-CFLAGS       =  $(DEVICE_FLAGS) -Os -Wall -pedantic -Werror
+GIT_VERSION := $(shell git rev-parse HEAD)
+BUILD_DATE  := $(shell date --iso=seconds)
 
-INCLUDE_PATH = "d:/dev/Msp430GCC/msp430-elf/include"
-LINKER_PATH  = "d:/dev/Msp430GCC/msp430-elf/include"
+CFLAGS       =  $(DEVICE_FLAGS) -Os -Wall -pedantic -Werror -DBUILD_DATETIME=\"$(BUILD_DATE)\" -DGITSHA=\"$(GIT_VERSION)\"
+
+
+INCLUDE_PATH = "D:/dev/msp430/msp430gcc/msp430-elf/include"
+LINKER_PATH  = "D:/dev/msp430/msp430gcc/msp430-elf/include"
 LFLAGS      = $(DEVICE_FLAGS) -I$(INCLUDE_PATH) -L$(LINKER_PATH)
 
 #SOURCES     := $(wildcard src/*.c)
 #SOURCES     := $(wildcard src/*.c)
 SOURCES     := src/main.c \
+               src/calibration.c \
                src/protocol.c \
                src/crc.c \
                src/uart.c \

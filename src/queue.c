@@ -73,7 +73,7 @@ QUEUE_put(QUEUE_t *queue, char *str)
 		if ( queue->write_pos >= queue->size )
 			queue->write_pos = 0;
 
-		if ( !str )
+		if ( *str == '\0' )
 			return cnt;
 	}
 
