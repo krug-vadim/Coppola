@@ -18,6 +18,14 @@ typedef uint8_t  PROTOCOL_FLAGS_t;
 typedef uint8_t  PROTOCOL_LENGTH_t;
 typedef uint16_t PROTOCOL_CRC_t;
 
+typedef enum
+{
+	PROTOCOL_FLAG_ACK = 0x01,
+	PROTOCOL_FLAG_RST = 0x02,
+	PROTOCOL_FLAG_DCL = 0x04
+}
+PROTOCOL_FLAG_t;
+
 typedef struct __attribute__((packed))
 {
 	PROTOCOL_MAGIC_t   magic;
@@ -48,5 +56,7 @@ void PROTOCOL_set_read_func(IO_FUNC_ptr read_fn);
 
 void PROTOCOL_set_write_byte_func(IO_FUNC_BYTE_WRITE_ptr write_byte_fn);
 void PROTOCOL_set_read_byte_func(IO_FUNC_BYTE_READ_ptr read_byte_fn);
+
+void PROTOCOL_set_log_func(LOG_FUNC_ptr log_fn);
 
 #endif

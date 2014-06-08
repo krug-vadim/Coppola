@@ -21,6 +21,6 @@ BOOL_t;
 typedef BOOL_t (*IO_FUNC_ptr)(uint8_t *src, SIZE_t cnt);
 typedef BOOL_t (*IO_FUNC_BYTE_READ_ptr)(uint8_t *byte);
 typedef BOOL_t (*IO_FUNC_BYTE_WRITE_ptr)(uint8_t byte);
-
+typedef SIZE_t (*LOG_FUNC_ptr)(char *msg);
 
 #endif

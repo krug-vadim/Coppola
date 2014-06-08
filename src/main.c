@@ -51,6 +51,7 @@ init(void)
 	PROTOCOL_set_read_func(UART_read);
 	PROTOCOL_set_write_byte_func(UART_write_byte);
 	PROTOCOL_set_read_byte_func(UART_read_byte);
+	PROTOCOL_set_log_func(UART_put);
 }
 
 void

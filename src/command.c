@@ -1,7 +1,7 @@
 #include "def.h"
 #include "command.h"
 
-void
+BOOL_t
 COMMAND_execute(COMMAND_t cmd)
 {
 	switch ( cmd )
