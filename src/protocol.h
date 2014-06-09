@@ -14,7 +14,6 @@ PROTOCOL_STATE_t;*/
 typedef uint16_t PROTOCOL_MAGIC_t;
 typedef uint16_t PROTOCOL_ID_t;
 typedef uint8_t  PROTOCOL_VERSION_t;
-typedef uint8_t  PROTOCOL_FLAGS_t;
 typedef uint8_t  PROTOCOL_LENGTH_t;
 typedef uint16_t PROTOCOL_CRC_t;
 
@@ -31,7 +30,6 @@ typedef struct __attribute__((packed))
 	PROTOCOL_MAGIC_t   magic;
 	PROTOCOL_ID_t      id;
 	PROTOCOL_VERSION_t version;
-	PROTOCOL_FLAGS_t   flags;
 	uint8_t            reserved;
 	PROTOCOL_LENGTH_t  size;
 }

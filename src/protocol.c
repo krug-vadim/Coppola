@@ -112,8 +112,6 @@ PROTOCOL_parse_data(uint8_t data)
 PROTOCOL_PARSER_VOID_ptr
 PROTOCOL_parse_crc(uint8_t data)
 {
-	BOOL_t execute_result;
-
 	*data_ptr++ = data;
 
 	log("[i] reading crc...\r\n");
@@ -122,7 +120,7 @@ PROTOCOL_parse_crc(uint8_t data)
 	if ( bytes_needed )
 		return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_crc;
 
-	if ( (packet.flags & PROTOCOL_FLAG_DCL) && (crc != packet.crc) )
+	if ( (crc != packet.crc) )
 	{
 		log("[e] wrong CRC");
 		return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_magic1;
@@ -130,8 +128,7 @@ PROTOCOL_parse_crc(uint8_t data)
 
 	/*execute_result = parse||;*/
 
-	if ( (packet.flags & PROTOCOL_FLAG_ACK) )
-		PROTOCOL_ack_send();
+	/*PROTOCOL_ack_send();*/
 
 	log("[i] packet parsed");
 
