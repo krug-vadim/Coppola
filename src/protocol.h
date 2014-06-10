@@ -1,29 +1,11 @@
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
 
-/*typedef enum
-{
-	PROTOCOL_STATE_MAGIC1,
-	PROTOCOL_STATE_MAGIC2,
-	PROTOCOL_STATE_HEADER,
-	PROTOCOL_STATE_DATA,
-	PROTOCOL_STATE_CRC,
-}
-PROTOCOL_STATE_t;*/
-
 typedef uint16_t PROTOCOL_MAGIC_t;
 typedef uint16_t PROTOCOL_ID_t;
 typedef uint8_t  PROTOCOL_VERSION_t;
 typedef uint8_t  PROTOCOL_LENGTH_t;
 typedef uint16_t PROTOCOL_CRC_t;
-
-typedef enum
-{
-	PROTOCOL_FLAG_ACK = 0x01,
-	PROTOCOL_FLAG_RST = 0x02,
-	PROTOCOL_FLAG_DCL = 0x04
-}
-PROTOCOL_FLAG_t;
 
 typedef struct __attribute__((packed))
 {
@@ -45,6 +27,10 @@ PROTOCOL_PACKET_t;
 
 #define PROTOCOL_MAGIC1 0x38
 #define PROTOCOL_MAGIC2 0xAF
+
+#define PROTOCOL_MAGIC 0x38AF
+
+#define PROTOCOL_VERSION 0x01
 
 void PROTOCOL_init(void);
 void PROTOCOL_process(void);
