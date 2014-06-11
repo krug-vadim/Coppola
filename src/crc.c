@@ -15,7 +15,7 @@ CRC_update(CRC_t crc, uint8_t data)
 	data ^= crc & 0xFF;
 	data ^= data << 4;
 
-	t  = ((uint8_t)data << 8) | ((crc >> 8) & 0xFF);
+	t  = ((uint16_t)data << 8) | ((crc >> 8) & 0xFF);
 	t ^= (uint8_t)(data >> 4);
 	t ^= ((uint16_t)data << 3);
 
