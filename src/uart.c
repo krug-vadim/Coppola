@@ -107,9 +107,5 @@ UART_process(void)
 		UART_tx();
 
 	if ( UART_CAN_RX() )
-	{
-		P1OUT ^= 0x01;
-		/*UART_rx();*/
-
-	}
+		UART_rx();
 }
