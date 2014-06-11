@@ -49,6 +49,19 @@ PROTOCOL_ack_send()
 
 }
 
+void
+PROTOCOL_debug_uint(uint16_t word)
+{
+	char str[] = ">> 0x0000 | ";
+
+	str[5] = '0' + ((word & 0xF000) >> 12);
+	str[6] = '0' + ((word & 0x0F00) >>  8);
+	str[7] = '0' + ((word & 0x00F0) >>  4);
+	str[8] = '0' + ((word & 0x000F) >>  0);
+
+	log(str);
+}
+
 PROTOCOL_PARSER_VOID_ptr
 PROTOCOL_parse_magic1(uint8_t data)
 {
@@ -60,6 +73,7 @@ PROTOCOL_parse_magic1(uint8_t data)
 	data_ptr = (uint8_t *)&packet;
 	*data_ptr++ = data;
 
+	PROTOCOL_debug_uint(data);
 	log("[i] found magic byte 1\r\n");
 
 	return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_magic2;
@@ -74,6 +88,7 @@ PROTOCOL_parse_magic2(uint8_t data)
 		crc = CRC_update(crc, data);
 		*data_ptr++ = data;
 
+		PROTOCOL_debug_uint(data);
 		log("[i] found magic byte 2\r\n");
 
 		return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_header;
@@ -90,6 +105,7 @@ PROTOCOL_parse_header(uint8_t data)
 	*data_ptr++ = data;
 	crc = CRC_update(crc, data);
 
+	PROTOCOL_debug_uint(data);
 	log("[i] reading header...\r\n");
 
 	bytes_needed--;
@@ -109,6 +125,7 @@ PROTOCOL_parse_data(uint8_t data)
 	*data_ptr++ = data;
 	crc = CRC_update(crc, data);
 
+	PROTOCOL_debug_uint(data);
 	log("[i] reading data...\r\n");
 
 	bytes_needed--;
@@ -128,6 +145,7 @@ PROTOCOL_parse_crc(uint8_t data)
 {
 	*data_ptr++ = data;
 
+	PROTOCOL_debug_uint(data);
 	log("[i] reading crc...\r\n");
 
 	bytes_needed--;
@@ -135,6 +153,11 @@ PROTOCOL_parse_crc(uint8_t data)
 		return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_crc;
 
 	log("[i] packed readed\r\n");
+
+	PROTOCOL_debug_uint(packet.crc);
+	log("[i] packet.crc\r\n");
+	PROTOCOL_debug_uint(crc);
+	log("[i] calculated crc\r\n");
 
 	if ( (crc != packet.crc) )
 	{
