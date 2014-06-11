@@ -9,7 +9,7 @@ typedef PROTOCOL_PARSER_VOID_ptr (*PROTOCOL_PARSER_ptr)(uint8_t data);
 
 static PROTOCOL_PARSER_ptr parser;
 static PROTOCOL_PACKET_t packet;
-/*static PROTOCOL_PACKET_t ack_packet;*/
+static PROTOCOL_PACKET_t ack;
 
 static uint8_t *data_ptr;
 static uint8_t bytes_needed;
@@ -21,6 +21,8 @@ static IO_FUNC_BYTE_WRITE_ptr write_byte;
 static IO_FUNC_BYTE_READ_ptr  read_byte;
 static LOG_FUNC_ptr           log;
 
+static IO_FUNC_ptr            parse_packet_data;
+
 PROTOCOL_PARSER_VOID_ptr PROTOCOL_parse_magic1(uint8_t data);
 PROTOCOL_PARSER_VOID_ptr PROTOCOL_parse_magic2(uint8_t data);
 PROTOCOL_PARSER_VOID_ptr PROTOCOL_parse_header(uint8_t data);
@@ -30,9 +32,21 @@ PROTOCOL_PARSER_VOID_ptr PROTOCOL_parse_crc(uint8_t data);
 void
 PROTOCOL_init(void)
 {
+	ack.header.magic = PROTOCOL_MAGIC;
+	ack.header.id = 0;
+	ack.header.version = PROTOCOL_VERSION;
+	ack.header.reserved = 0x00;
+	ack.header.size = 0x01;
+
 	parser = (PROTOCOL_PARSER_ptr)PROTOCOL_parse_magic1;
 
 	/* TODO: fn pointers to dumb fn */
+}
+
+void
+PROTOCOL_ack_send()
+{
+
 }
 
 PROTOCOL_PARSER_VOID_ptr
@@ -120,17 +134,28 @@ PROTOCOL_parse_crc(uint8_t data)
 	if ( bytes_needed )
 		return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_crc;
 
+	log("[i] packed readed\r\n");
+
 	if ( (crc != packet.crc) )
 	{
-		log("[e] wrong CRC");
+		log("[e] wrong CRC\r\n");
 		return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_magic1;
 	}
 
-	/*execute_result = parse||;*/
+	if ( packet.header.version != PROTOCOL_VERSION )
+	{
+		log("[e] wrong protocol version\r\n");
+		return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_magic1;
+	}
 
-	/*PROTOCOL_ack_send();*/
+	if ( parse_packet_data(packet.data, packet.header.size) )
+		ack.data[0] = 0xFF;
+	else
+		ack.data[0] = 0x00;
 
-	log("[i] packet parsed");
+	PROTOCOL_ack_send();
+
+	log("[i] packet parsed\r\n");
 
 	return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_magic1;
 }

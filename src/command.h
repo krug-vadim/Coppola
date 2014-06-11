@@ -17,4 +17,6 @@ typedef enum
 }
 COMMAND_t;
 
+BOOL_t COMMAND_parse(uint8_t *data, SIZE_t cnt);
+
 #endif

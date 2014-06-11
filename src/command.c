@@ -48,4 +48,15 @@ COMMAND_execute(COMMAND_t cmd)
 			// XXX: error handling
 			break;
 	}
+
+	return TRUE;
+}
+
+BOOL_t
+COMMAND_parse(uint8_t *data, SIZE_t cnt)
+{
+	if ( cnt < 1 )
+		return FALSE;
+
+	return COMMAND_execute(data[0]);
 }
