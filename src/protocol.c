@@ -49,15 +49,23 @@ PROTOCOL_ack_send()
 
 }
 
+static const char digits_sym[] =
+{
+	'0', '1', '2', '3',
+	'4', '5', '6', '7',
+	'8', '9', 'A', 'B',
+	'C', 'D', 'E', 'F'
+};
+
 void
 PROTOCOL_debug_uint(uint16_t word)
 {
 	char str[] = ">> 0x0000 | ";
 
-	str[5] = '0' + ((word & 0xF000) >> 12);
-	str[6] = '0' + ((word & 0x0F00) >>  8);
-	str[7] = '0' + ((word & 0x00F0) >>  4);
-	str[8] = '0' + ((word & 0x000F) >>  0);
+	str[5] = digits_sym[((word & 0xF000) >> 12)];
+	str[6] = digits_sym[((word & 0x0F00) >>  8)];
+	str[7] = digits_sym[((word & 0x00F0) >>  4)];
+	str[8] = digits_sym[((word & 0x000F) >>  0)];
 
 	log(str);
 }
@@ -69,12 +77,18 @@ PROTOCOL_parse_magic1(uint8_t data)
 		return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_magic1;
 
 	crc = CRC_init();
+	PROTOCOL_debug_uint(crc);
+	log("[i] init crc\r\n");
+
 	crc = CRC_update(crc, data);
+
 	data_ptr = (uint8_t *)&packet;
 	*data_ptr++ = data;
 
 	PROTOCOL_debug_uint(data);
 	log("[i] found magic byte 1\r\n");
+	PROTOCOL_debug_uint(crc);
+	log("[i] crc\r\n");
 
 	return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_magic2;
 }
@@ -90,6 +104,8 @@ PROTOCOL_parse_magic2(uint8_t data)
 
 		PROTOCOL_debug_uint(data);
 		log("[i] found magic byte 2\r\n");
+		PROTOCOL_debug_uint(crc);
+		log("[i] crc\r\n");
 
 		return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_header;
 	}
@@ -107,6 +123,8 @@ PROTOCOL_parse_header(uint8_t data)
 
 	PROTOCOL_debug_uint(data);
 	log("[i] reading header...\r\n");
+	PROTOCOL_debug_uint(crc);
+	log("[i] crc\r\n");
 
 	bytes_needed--;
 	if ( bytes_needed )
@@ -127,6 +145,8 @@ PROTOCOL_parse_data(uint8_t data)
 
 	PROTOCOL_debug_uint(data);
 	log("[i] reading data...\r\n");
+	PROTOCOL_debug_uint(crc);
+	log("[i] crc\r\n");
 
 	bytes_needed--;
 	if ( bytes_needed )
@@ -147,6 +167,8 @@ PROTOCOL_parse_crc(uint8_t data)
 
 	PROTOCOL_debug_uint(data);
 	log("[i] reading crc...\r\n");
+	PROTOCOL_debug_uint(crc);
+	log("[i] crc\r\n");
 
 	bytes_needed--;
 	if ( bytes_needed )
