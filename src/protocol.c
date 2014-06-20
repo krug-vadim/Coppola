@@ -30,43 +30,6 @@ PROTOCOL_PARSER_VOID_ptr PROTOCOL_parse_header(uint8_t data);
 PROTOCOL_PARSER_VOID_ptr PROTOCOL_parse_data(uint8_t data);
 PROTOCOL_PARSER_VOID_ptr PROTOCOL_parse_crc(uint8_t data);
 
-void
-PROTOCOL_init(void)
-{
-	SIZE_t i;
-
-	ack.header.magic = PROTOCOL_MAGIC;
-	ack.header.id = 0;
-	ack.header.version = PROTOCOL_VERSION;
-	ack.header.reserved = 0x00;
-	ack.header.size = 0x01;
-	ack.flags = 0x00;
-	ack.crc = 0;
-
-	ack_init_crc = CRC_init();
-	for(i = 0; i < sizeof(PROTOCOL_HEADER_t); i++)
-	{
-		ack_init_crc = CRC_update(crc, ((uint8_t *)&ack)[i]);
-
-	}
-
-	parser = (PROTOCOL_PARSER_ptr)PROTOCOL_parse_magic1;
-
-	/* TODO: fn pointers to dumb fn */
-}
-
-void
-PROTOCOL_ack_send(PROTOCOL_ACK_FLAGS_t flags)
-{
-	ack.flags = flags
-	          | PROTOCOL_ACK_FLAG_OTHER;
-
-	ack.crc = ack_init_crc;/*CRC_update(ack_init_crc, flags);*/
-
-	/* TODO: check write fail */
-	write((uint8_t *)&ack, sizeof(PROTOCOL_ACK_t));
-}
-
 static const char digits_sym[] =
 {
 	'0', '1', '2', '3',
@@ -86,6 +49,44 @@ PROTOCOL_debug_uint(uint16_t word)
 	str[8] = digits_sym[((word & 0x000F) >>  0)];
 
 	log(str);
+}
+
+void
+PROTOCOL_init(void)
+{
+	SIZE_t i;
+
+	ack.header.magic = PROTOCOL_MAGIC;
+	ack.header.id = 0;
+	ack.header.version = PROTOCOL_VERSION;
+	ack.header.reserved = 0x00;
+	ack.header.size = 0x01;
+	ack.flags = 0x00;
+	ack.crc = 0;
+
+	ack_init_crc = CRC_init();
+	for(i = 0; i < sizeof(PROTOCOL_HEADER_t); i++)
+	{
+		ack_init_crc = CRC_update(crc, ((uint8_t *)&ack)[i]);
+		/*PROTOCOL_debug_uint(crc);
+		log("[i] crc\r\n");*/
+	}
+
+	parser = (PROTOCOL_PARSER_ptr)PROTOCOL_parse_magic1;
+
+	/* TODO: fn pointers to dumb fn */
+}
+
+void
+PROTOCOL_ack_send(PROTOCOL_ACK_FLAGS_t flags)
+{
+	ack.flags = flags
+	          | PROTOCOL_ACK_FLAG_OTHER;
+
+	ack.crc = ack_init_crc;/*CRC_update(ack_init_crc, flags);*/
+
+	/* TODO: check write fail */
+	write((uint8_t *)&ack, sizeof(PROTOCOL_ACK_t));
 }
 
 PROTOCOL_PARSER_VOID_ptr
@@ -216,6 +217,8 @@ PROTOCOL_parse_crc(uint8_t data)
 
 	if ( data_parser(packet.data, packet.header.size) )
 		flags |= PROTOCOL_ACK_FLAG_OPERATION_OK;
+
+	flags |= PROTOCOL_ACK_FLAG_OPERATION_DONE;
 
 	PROTOCOL_ack_send(flags);
 
