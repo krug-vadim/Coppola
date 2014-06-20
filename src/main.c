@@ -10,6 +10,9 @@ AND MAY CONTAIN IRREGULARITIES AND DEFECTS NOT FOUND IN PRODUCTION SOFTWARE.
 #include "uart.h"
 #include "protocol.h"
 
+#include "dumb.h"
+#include "washer.h"
+
 void
 hw_init(void)
 {
@@ -51,7 +54,10 @@ init(void)
 	PROTOCOL_set_read_func(UART_read);
 	PROTOCOL_set_write_byte_func(UART_write_byte);
 	PROTOCOL_set_read_byte_func(UART_read_byte);
-	PROTOCOL_set_log_func(UART_put);
+	PROTOCOL_set_log_func(DUMB_log_func);
+	/*PROTOCOL_set_log_func(UART_put);*/
+	PROTOCOL_set_parser_func(WASHER_parse);
+
 }
 
 void

@@ -21,11 +21,13 @@ LFLAGS      = $(DEVICE_FLAGS) -I$(INCLUDE_PATH) -L$(LINKER_PATH)
 #SOURCES     := $(wildcard src/*.c)
 #SOURCES     := $(wildcard src/*.c)
 SOURCES     := src/main.c \
+               src/dumb.c \
                src/calibration.c \
                src/protocol.c \
                src/crc.c \
                src/uart.c \
-               src/queue.c
+               src/queue.c \
+               src/washer.c
 OBJECTS     := $(patsubst %.c, %.o, $(SOURCES))
 
 # flasher

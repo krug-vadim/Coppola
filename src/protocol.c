@@ -9,11 +9,12 @@ typedef PROTOCOL_PARSER_VOID_ptr (*PROTOCOL_PARSER_ptr)(uint8_t data);
 
 static PROTOCOL_PARSER_ptr parser;
 static PROTOCOL_PACKET_t packet;
-static PROTOCOL_PACKET_t ack;
+static PROTOCOL_ACK_t ack;
 
 static uint8_t *data_ptr;
 static uint8_t bytes_needed;
 static CRC_t crc;
+static CRC_t ack_init_crc;
 
 static IO_FUNC_ptr            write;
 static IO_FUNC_ptr            read;
@@ -21,7 +22,7 @@ static IO_FUNC_BYTE_WRITE_ptr write_byte;
 static IO_FUNC_BYTE_READ_ptr  read_byte;
 static LOG_FUNC_ptr           log;
 
-static IO_FUNC_ptr            parse_packet_data;
+static IO_FUNC_ptr            data_parser;
 
 PROTOCOL_PARSER_VOID_ptr PROTOCOL_parse_magic1(uint8_t data);
 PROTOCOL_PARSER_VOID_ptr PROTOCOL_parse_magic2(uint8_t data);
@@ -32,11 +33,22 @@ PROTOCOL_PARSER_VOID_ptr PROTOCOL_parse_crc(uint8_t data);
 void
 PROTOCOL_init(void)
 {
+	SIZE_t i;
+
 	ack.header.magic = PROTOCOL_MAGIC;
 	ack.header.id = 0;
 	ack.header.version = PROTOCOL_VERSION;
 	ack.header.reserved = 0x00;
 	ack.header.size = 0x01;
+	ack.flags = 0x00;
+	ack.crc = 0;
+
+	ack_init_crc = CRC_init();
+	for(i = 0; i < sizeof(PROTOCOL_HEADER_t); i++)
+	{
+		ack_init_crc = CRC_update(crc, ((uint8_t *)&ack)[i]);
+
+	}
 
 	parser = (PROTOCOL_PARSER_ptr)PROTOCOL_parse_magic1;
 
@@ -44,9 +56,15 @@ PROTOCOL_init(void)
 }
 
 void
-PROTOCOL_ack_send()
+PROTOCOL_ack_send(PROTOCOL_ACK_FLAGS_t flags)
 {
+	ack.flags = flags
+	          | PROTOCOL_ACK_FLAG_OTHER;
 
+	ack.crc = ack_init_crc;/*CRC_update(ack_init_crc, flags);*/
+
+	/* TODO: check write fail */
+	write((uint8_t *)&ack, sizeof(PROTOCOL_ACK_t));
 }
 
 static const char digits_sym[] =
@@ -163,6 +181,8 @@ PROTOCOL_parse_data(uint8_t data)
 PROTOCOL_PARSER_VOID_ptr
 PROTOCOL_parse_crc(uint8_t data)
 {
+	PROTOCOL_ACK_FLAGS_t flags;
+
 	*data_ptr++ = data;
 
 	PROTOCOL_debug_uint(data);
@@ -181,11 +201,12 @@ PROTOCOL_parse_crc(uint8_t data)
 	PROTOCOL_debug_uint(crc);
 	log("[i] calculated crc\r\n");
 
-	if ( (crc != packet.crc) )
-	{
+	flags = 0x00;
+
+	if ( (crc == packet.crc) )
+		flags |= PROTOCOL_ACK_FLAG_CRC_OK;
+	else
 		log("[e] wrong CRC\r\n");
-		return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_magic1;
-	}
 
 	if ( packet.header.version != PROTOCOL_VERSION )
 	{
@@ -193,12 +214,10 @@ PROTOCOL_parse_crc(uint8_t data)
 		return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_magic1;
 	}
 
-	if ( parse_packet_data(packet.data, packet.header.size) )
-		ack.data[0] = 0xFF;
-	else
-		ack.data[0] = 0x00;
+	if ( data_parser(packet.data, packet.header.size) )
+		flags |= PROTOCOL_ACK_FLAG_OPERATION_OK;
 
-	PROTOCOL_ack_send();
+	PROTOCOL_ack_send(flags);
 
 	log("[i] packet parsed\r\n");
 
@@ -242,4 +261,10 @@ void
 PROTOCOL_set_log_func(LOG_FUNC_ptr log_fn)
 {
 	log = log_fn;
+}
+
+void
+PROTOCOL_set_parser_func(IO_FUNC_ptr parser_fn)
+{
+	data_parser = parser_fn;
 }
