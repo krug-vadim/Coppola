@@ -57,7 +57,6 @@ init(void)
 	PROTOCOL_set_log_func(DUMB_log_func);
 	/*PROTOCOL_set_log_func(UART_put);*/
 	PROTOCOL_set_parser_func(WASHER_parse);
-
 }
 
 void

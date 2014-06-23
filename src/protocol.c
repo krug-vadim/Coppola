@@ -41,13 +41,12 @@ static const char digits_sym[] =
 void
 PROTOCOL_debug_uint(uint16_t word)
 {
-	char str[] = ">> 0x0000 | ";
+	char str[] = "0000 ";
 
-	str[5] = digits_sym[((word & 0xF000) >> 12)];
-	str[6] = digits_sym[((word & 0x0F00) >>  8)];
-	str[7] = digits_sym[((word & 0x00F0) >>  4)];
-	str[8] = digits_sym[((word & 0x000F) >>  0)];
-
+	str[0] = digits_sym[((word & 0xF000) >> 12)];
+	str[1] = digits_sym[((word & 0x0F00) >>  8)];
+	str[2] = digits_sym[((word & 0x00F0) >>  4)];
+	str[3] = digits_sym[((word & 0x000F) >>  0)];
 	log(str);
 }
 
@@ -67,9 +66,9 @@ PROTOCOL_init(void)
 	ack_init_crc = CRC_init();
 	for(i = 0; i < sizeof(PROTOCOL_HEADER_t); i++)
 	{
-		ack_init_crc = CRC_update(crc, ((uint8_t *)&ack)[i]);
-		/*PROTOCOL_debug_uint(crc);
-		log("[i] crc\r\n");*/
+		ack_init_crc = CRC_update(ack_init_crc, ((uint8_t *)&ack)[i]);
+/*		PROTOCOL_debug_uint(((uint8_t *)&ack)[i]);
+		PROTOCOL_debug_uint(crc);*/
 	}
 
 	parser = (PROTOCOL_PARSER_ptr)PROTOCOL_parse_magic1;
@@ -83,7 +82,7 @@ PROTOCOL_ack_send(PROTOCOL_ACK_FLAGS_t flags)
 	ack.flags = flags
 	          | PROTOCOL_ACK_FLAG_OTHER;
 
-	ack.crc = ack_init_crc;/*CRC_update(ack_init_crc, flags);*/
+	ack.crc = CRC_update(ack_init_crc, ack.flags);
 
 	/* TODO: check write fail */
 	write((uint8_t *)&ack, sizeof(PROTOCOL_ACK_t));
@@ -186,22 +185,9 @@ PROTOCOL_parse_crc(uint8_t data)
 
 	*data_ptr++ = data;
 
-	PROTOCOL_debug_uint(data);
-	log("[i] reading crc...\r\n");
-	PROTOCOL_debug_uint(crc);
-	log("[i] crc\r\n");
-
 	bytes_needed--;
 	if ( bytes_needed )
 		return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_crc;
-
-	log("[i] packed readed\r\n");
-
-	PROTOCOL_debug_uint(packet.crc);
-	log("[i] packet.crc\r\n");
-	PROTOCOL_debug_uint(crc);
-	log("[i] calculated crc\r\n");
-
 	flags = 0x00;
 
 	if ( (crc == packet.crc) )
