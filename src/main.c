@@ -48,6 +48,7 @@ init(void)
 	/* modules init */
 	UART_init();
 	PROTOCOL_init();
+	WASHER_init();
 
 	/* post setup */
 	PROTOCOL_set_write_func(UART_write);
@@ -62,6 +63,8 @@ init(void)
 void
 startup(void)
 {
+	WASHER_startup();
+
 	UART_put("\r\n\r\n\r\nYOBA WASHER LTD.\r\nCoppola\r\n");
 	UART_put("version: "GITSHA"\r\n");
 	UART_put("  build: "BUILD_DATETIME"\r\n");
@@ -80,6 +83,7 @@ main(void)
 	{
 		UART_process();
 		PROTOCOL_process();
+		WASHER_process();
 	}
 
 	return 0;

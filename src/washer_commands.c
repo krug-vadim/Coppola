@@ -1,9 +1,12 @@
 #include "def.h"
 #include "washer_commands.h"
 
+#include "washer_hw.h"
+
 BOOL_t
 WASHER_dumb_command(uint8_t *data, SIZE_t cnt)
 {
+	/* XXX: io.log("DUMB COMMAND!\r\n"); */
 	return FALSE;
 }
 

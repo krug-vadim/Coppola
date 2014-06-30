@@ -1,22 +1,21 @@
 #ifndef WASHER_H
 #define WASHER_H
 
-#define WASHER_PERIPHERAL_COUNT (7U)
-
 typedef enum
 {
-	WASHER_PERIPHERAL_DOOR         = 0x00,
+	WASHER_PERIPHERAL_DOOR = 0x00,
 
-	WASHER_PERIPHERAL_MAIN_VALVE   = 0x01,
-	WASHER_PERIPHERAL_PRE_VALVE    = 0x02,
+	WASHER_PERIPHERAL_WATER_PUMP = 0x01,
+	WASHER_PERIPHERAL_WATER_HEATER = 0x02,
 
-	WASHER_PERIPHERAL_WATER_HEATER = 0x03,
-	WASHER_PERIPHERAL_WATER_PUMP   = 0x04,
-
-	WASHER_PERIPHERAL_SONAR        = 0x05,
-	WASHER_PERIPHERAL_TAHO         = 0x06
+	WASHER_PERIPHERAL_PRE_VALVE = 0x03,
+	WASHER_PERIPHERAL_MAIN_VALVE = 0x04
 }
 WASHER_PERIPHERAL_t;
+
+typedef BOOL_t WASHER_PERIPHERAL_STATE;
+
+#define WASHER_PERIPHERAL_COUNT (5U)
 
 typedef enum
 {
@@ -35,6 +34,25 @@ typedef enum
 WASHER_COMMAND_t;
 
 #define WASHER_COMMANDS_COUNT (0x15U)
+
+typedef uint16_t WASHER_VALUE_t;
+
+typedef struct
+{
+	WASHER_VALUE_t sonar_fq;
+	WASHER_VALUE_t taho_fq;
+	WASHER_VALUE_t temperature;
+	WASHER_VALUE_t motor_power;
+
+	WASHER_PERIPHERAL_STATE is_on[WASHER_PERIPHERAL_COUNT];
+}
+WASHER_t;
+
+void WASHER_init(void);
+void WASHER_startup(void);
+void WASHER_process(void);
+
+void WASHER_one_second_tick(void);
 
 BOOL_t WASHER_parse(uint8_t *data, SIZE_t cnt);
 
