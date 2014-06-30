@@ -23,4 +23,17 @@ typedef BOOL_t (*IO_FUNC_BYTE_READ_ptr)(uint8_t *byte);
 typedef BOOL_t (*IO_FUNC_BYTE_WRITE_ptr)(uint8_t byte);
 typedef SIZE_t (*LOG_FUNC_ptr)(char *msg);
 
+/* crazy world */
+typedef struct
+{
+	IO_FUNC_ptr read;
+	IO_FUNC_ptr write;
+
+	IO_FUNC_BYTE_READ_ptr  byte_read;
+	IO_FUNC_BYTE_WRITE_ptr byte_write;
+
+	LOG_FUNC_ptr log;
+}
+IO_INTERFACE_t;
+
 #endif

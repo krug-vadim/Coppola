@@ -24,7 +24,8 @@ SOURCES     := src/main.c \
                src/crc.c \
                src/uart.c \
                src/queue.c \
-               src/washer.c
+               src/washer.c \
+               src/washer_commands.c
 
 OBJECTS     := $(patsubst %.c, %.o, $(SOURCES))
 

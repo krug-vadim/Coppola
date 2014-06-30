@@ -34,11 +34,7 @@ typedef enum
 }
 WASHER_COMMAND_t;
 
-typedef struct
-{
-	uint32_t peripherals[WASHER_PERIPHERAL_COUNT];
-}
-WASHER_t;
+#define WASHER_COMMANDS_COUNT (0x15U)
 
 BOOL_t WASHER_parse(uint8_t *data, SIZE_t cnt);
 
