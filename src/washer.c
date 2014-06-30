@@ -6,6 +6,9 @@ static IO_FUNC_ptr commands[WASHER_COMMANDS_COUNT];
 
 static WASHER_t washer;
 
+static WASHER_VALUE_t sonar_fq_current;
+static WASHER_VALUE_t taho_fq_current;
+
 void
 WASHER_init_pins(void)
 {
@@ -83,6 +86,9 @@ WASHER_init(void)
 	WASHER_init_commands();
 
 	WASHER_init_washer();
+
+	sonar_fq_current = 0;
+	taho_fq_current = 0;
 }
 
 void
@@ -156,9 +162,9 @@ WASHER_process(void)
 void
 WASHER_one_second_tick(void)
 {
-	/*_sonarFreq = _sonarCounter;
-	_sonarCounter = 0;
+	washer.sonar_fq = sonar_fq_current;
+	sonar_fq_current = 0;
 
-	_tachoFreq = _tachoCounter;
-	_tachoCounter = 0;*/
+	washer.taho_fq = taho_fq_current;
+	taho_fq_current = 0;
 }
