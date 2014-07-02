@@ -40,7 +40,7 @@ typedef uint16_t WASHER_VALUE_t;
 typedef struct
 {
 	WASHER_VALUE_t sonar_fq;
-	WASHER_VALUE_t taho_fq;
+	WASHER_VALUE_t tacho_fq;
 	WASHER_VALUE_t temperature;
 	WASHER_VALUE_t motor_power;
 

@@ -3,7 +3,7 @@
 
 #include "queue.h"
 
-#define UART_QUEUE_SIZE 128U
+#define UART_QUEUE_SIZE 64U
 
 static QUEUE_t queue_tx;
 static QUEUE_t queue_rx;

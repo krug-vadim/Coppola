@@ -9,7 +9,7 @@ BOOL_t WASHER_pre_valve_set_command(uint8_t *data, SIZE_t cnt);
 BOOL_t WASHER_motor_dir_set_command(uint8_t *data, SIZE_t cnt);
 BOOL_t WASHER_motor_power_set_command(uint8_t *data, SIZE_t cnt);
 BOOL_t WASHER_water_pump_set_command(uint8_t *data, SIZE_t cnt);
-BOOL_t WASHER_taho_get_command(uint8_t *data, SIZE_t cnt);
+BOOL_t WASHER_tacho_get_command(uint8_t *data, SIZE_t cnt);
 BOOL_t WASHER_sonar_get_command(uint8_t *data, SIZE_t cnt);
 BOOL_t WASHER_door_get_command(uint8_t *data, SIZE_t cnt);
 BOOL_t WASHER_id_get_command(uint8_t *data, SIZE_t cnt);

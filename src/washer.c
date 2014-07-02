@@ -2,46 +2,69 @@
 #include "washer.h"
 #include "washer_commands.h"
 
+#include "washer_hw.h"
+
 static IO_FUNC_ptr commands[WASHER_COMMANDS_COUNT];
 
-static WASHER_t washer;
-
 static WASHER_VALUE_t sonar_fq_current;
-static WASHER_VALUE_t taho_fq_current;
+static WASHER_VALUE_t tacho_fq_current;
+
+static uint8_t sonar_last_state;
+static uint8_t tacho_last_state;
+
+static uint8_t zerocross_last_state;
+
+static BOOL_t  relay_is_on;
+static BOOL_t  need_toggle_relay;
+
+WASHER_t washer;
 
 void
 WASHER_init_pins(void)
 {
-	/*relay_state = LOW;
-	need_switch_relay = 0;
+	PIN_MODE_INPUT(ZEROCROSS_PIN);
+	PIN_MODE_INPUT(HEATER_TEMP_PIN);
 
-	pinMode(ZEROCROSS_PIN, INPUT);
-	pinMode(HEATER_TEMP_PIN, INPUT);
+	PIN_MODE_INPUT(SONAR_SENSE_PIN);
+	PIN_MODE_INPUT(TACHO_SENSE_PIN);
 
-	pinMode(SONAR_SENSE_PIN, INPUT_PULLUP);
-	pinMode(TACHO_SENSE_PIN, INPUT_PULLUP);
+	/* set all outputs to LOW */
 
-	// set all outputs to LOW
+	PIN_SET_LOW(RELAY_PIN);
+	PIN_SET_LOW(DOORLOCK_PIN);
+	PIN_SET_LOW(MOTOR_PIN);
+	PIN_SET_LOW(HEATER_PIN);
 
-	digitalWrite(RELAY_PIN,  LOW);
-	digitalWrite(DOORLOCK_PIN,  LOW);
-	digitalWrite(MOTOR_PIN,  LOW);
-	digitalWrite(HEATER_PIN,  LOW);
+	PIN_SET_LOW(DRAIN_PUMP_PIN);
+	PIN_SET_LOW(VALVE_MAIN_PIN);
+	PIN_SET_LOW(VALVE_PRE_PIN);
 
-	digitalWrite(UNKNOWN1_PIN,  LOW);
-	digitalWrite(UNKNOWN2_PIN,  LOW);
-	digitalWrite(UNKNOWN3_PIN,  LOW);
 
-	// and make them output
+	/* and make them output */
 
-	pinMode(RELAY_PIN, OUTPUT);
-	pinMode(DOORLOCK_PIN, OUTPUT);
-	pinMode(MOTOR_PIN, OUTPUT);
-	pinMode(HEATER_PIN, OUTPUT);
+	PIN_MODE_OUTPUT(RELAY_PIN);
+	PIN_MODE_OUTPUT(DOORLOCK_PIN);
+	PIN_MODE_OUTPUT(MOTOR_PIN);
+	PIN_MODE_OUTPUT(HEATER_PIN);
 
-	pinMode(UNKNOWN1_PIN, OUTPUT);
-	pinMode(UNKNOWN2_PIN, OUTPUT);
-	pinMode(UNKNOWN3_PIN, OUTPUT);*/
+	PIN_MODE_OUTPUT(DRAIN_PUMP_PIN);
+	PIN_MODE_OUTPUT(VALVE_MAIN_PIN);
+	PIN_MODE_OUTPUT(VALVE_PRE_PIN);
+}
+
+void
+WASHER_init_washer(void)
+{
+	SIZE_t i;
+
+	washer.sonar_fq = 0;
+	washer.tacho_fq = 0;
+	washer.temperature = 0;
+
+	washer.motor_power = 0;
+
+	for(i = 0; i < WASHER_PERIPHERAL_COUNT; i++)
+		washer.is_on[i] = FALSE;
 }
 
 void
@@ -58,25 +81,10 @@ WASHER_init_commands(void)
 	commands[0x05] = WASHER_motor_dir_set_command;
 	commands[0x06] = WASHER_motor_power_set_command;
 	commands[0x07] = WASHER_water_pump_set_command;
-	commands[0x11] = WASHER_taho_get_command;
+	commands[0x11] = WASHER_tacho_get_command;
 	commands[0x12] = WASHER_sonar_get_command;
 	commands[0x13] = WASHER_door_get_command;
 	commands[0x14] = WASHER_id_get_command;
-}
-
-void
-WASHER_init_washer(void)
-{
-	SIZE_t i;
-
-	washer.sonar_fq = 0;
-	washer.taho_fq = 0;
-	washer.temperature = 0;
-
-	washer.motor_power = 0;
-
-	for(i = 0; i < WASHER_PERIPHERAL_COUNT; i++)
-		washer.is_on[i] = FALSE;
 }
 
 void
@@ -84,11 +92,18 @@ WASHER_init(void)
 {
 	WASHER_init_pins();
 	WASHER_init_commands();
-
 	WASHER_init_washer();
 
 	sonar_fq_current = 0;
-	taho_fq_current = 0;
+	tacho_fq_current = 0;
+
+	sonar_last_state = 0;
+	tacho_last_state = 0;
+
+	zerocross_last_state = 0;
+
+	relay_is_on = FALSE;
+	need_toggle_relay = FALSE;
 }
 
 void
@@ -101,7 +116,8 @@ WASHER_command(WASHER_COMMAND_t cmd, uint8_t *data, SIZE_t cnt)
 {
 	if ( data[0] < WASHER_COMMANDS_COUNT )
 		return commands[data[0]](&data[1], cnt - 1);
-	return FALSE;
+
+	return TRUE;
 }
 
 BOOL_t
@@ -113,50 +129,58 @@ WASHER_parse(uint8_t *data, SIZE_t cnt)
 	return WASHER_command(data[0], &data[1], cnt - 1);
 }
 
+void delay_us(uint16_t time)
+{
+	for(; time != 0; time--)
+		asm("NOP");/*NOP();__delay_cycles(16);*/
+}
+
 void
 WASHER_process(void)
 {
-/*	pinState = digitalRead(SONAR_SENSE_PIN);
-	if ( pinState != _sonarLastState )
+	uint8_t pin_state;
+
+	pin_state = PIN_VALUE(SONAR_SENSE_PIN);
+	if ( sonar_last_state != pin_state )
 	{
-	_sonarCounter++;
-	_sonarLastState = pinState;
+		sonar_fq_current++;
+		sonar_last_state = pin_state;
 	}
 
-	pinState = digitalRead(TACHO_SENSE_PIN);
-	if ( pinState != _tachoLastState )
+	pin_state = PIN_VALUE(TACHO_SENSE_PIN);
+	if ( tacho_last_state != pin_state )
 	{
-	_tachoCounter++;
-	_tachoLastState = pinState;
+		tacho_fq_current++;
+		tacho_last_state = pin_state;
 	}
 
-	_currentZeroCrossState = digitalRead(ZEROCROSS_PIN);
-
-	if(_lastZeroCrossState != _currentZeroCrossState)
+	pin_state = PIN_VALUE(ZEROCROSS_PIN);
+	if( zerocross_last_state != pin_state )
 	{
-		_lastZeroCrossState = _currentZeroCrossState;
+		zerocross_last_state = pin_state;
 
-		if ( need_switch_relay )
+		if ( need_toggle_relay )
 		{
-			relay_state = (relay_state == HIGH) ? LOW : HIGH;
-			digitalWrite(RELAY_PIN,  relay_state);
-			need_switch_relay = 0x00;
+			relay_is_on = (relay_is_on) ? FALSE : TRUE;
+
+			if ( relay_is_on )
+				PIN_SET_HIGH(RELAY_PIN);
+			else
+				PIN_SET_LOW(RELAY_PIN);;
+
+			need_toggle_relay = FALSE;
 		}
 
-		if (_delay)
+		if (washer.motor_power)
 		{
-			delay_us(_delay*40);
+			/* XXX: calculate */
+			delay_us(washer.motor_power*40);
 
-			digitalWrite(MOTOR_PIN,  HIGH);
-			//digitalWrite(P1_0,  HIGH);
-
-			//delay_us(_delay * 4);
-			delay_us(100);
-
-			digitalWrite(MOTOR_PIN,  LOW);
-			//digitalWrite(P1_0,  LOW);
+			PIN_SET_HIGH(MOTOR_PIN);
+			delay_us(100); /* XXX: why 100? dunno */
+			PIN_SET_LOW(MOTOR_PIN);
 		}
-	}*/
+	}
 }
 
 void
@@ -165,6 +189,6 @@ WASHER_one_second_tick(void)
 	washer.sonar_fq = sonar_fq_current;
 	sonar_fq_current = 0;
 
-	washer.taho_fq = taho_fq_current;
-	taho_fq_current = 0;
+	washer.tacho_fq = tacho_fq_current;
+	tacho_fq_current = 0;
 }
