@@ -109,3 +109,13 @@ UART_process(void)
 	if ( UART_CAN_RX() )
 		UART_rx();
 }
+
+void
+UART_io_init(IO_INTERFACE_t *io)
+{
+	io->read = UART_read;
+	io->write = UART_write;
+	io->byte_read = UART_read_byte;
+	io->byte_write = UART_write_byte;
+	io->log = UART_put;
+}

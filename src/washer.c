@@ -19,6 +19,8 @@ static BOOL_t  need_toggle_relay;
 
 WASHER_t washer;
 
+IO_INTERFACE_t washer_io;
+
 void
 WASHER_init_pins(void)
 {
@@ -57,6 +59,7 @@ WASHER_init_washer(void)
 {
 	SIZE_t i;
 
+	washer.id = WASHER_ID;
 	washer.sonar_fq = 0;
 	washer.tacho_fq = 0;
 	washer.temperature = 0;
@@ -159,19 +162,12 @@ WASHER_process(void)
 	{
 		zerocross_last_state = pin_state;
 
-		if ( need_toggle_relay )
-		{
-			relay_is_on = (relay_is_on) ? FALSE : TRUE;
+		/*if ( washer.motor_power < 0 )
+			PIN_SET_HIGH(RELAY_PIN);
+		else
+			PIN_SET_LOW(RELAY_PIN);*/
 
-			if ( relay_is_on )
-				PIN_SET_HIGH(RELAY_PIN);
-			else
-				PIN_SET_LOW(RELAY_PIN);;
-
-			need_toggle_relay = FALSE;
-		}
-
-		if (washer.motor_power)
+		if ( washer.motor_power )
 		{
 			/* XXX: calculate */
 			delay_us(washer.motor_power*40);
@@ -191,4 +187,10 @@ WASHER_one_second_tick(void)
 
 	washer.tacho_fq = tacho_fq_current;
 	tacho_fq_current = 0;
+}
+
+void
+WASHER_io_set(IO_INTERFACE_t *io)
+{
+	washer_io = *io;
 }

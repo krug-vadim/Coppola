@@ -54,6 +54,8 @@ PROTOCOL_ACK_t;
 void PROTOCOL_init(void);
 void PROTOCOL_process(void);
 
+BOOL_t PROTOCOL_write(uint8_t *src, SIZE_t cnt);
+
 void PROTOCOL_set_write_func(IO_FUNC_ptr write_fn);
 void PROTOCOL_set_read_func(IO_FUNC_ptr read_fn);
 
@@ -63,5 +65,7 @@ void PROTOCOL_set_read_byte_func(IO_FUNC_BYTE_READ_ptr read_byte_fn);
 void PROTOCOL_set_log_func(LOG_FUNC_ptr log_fn);
 
 void PROTOCOL_set_parser_func(IO_FUNC_ptr parser_fn);
+
+void PROTOCOL_io_set(IO_INTERFACE_t *io);
 
 #endif

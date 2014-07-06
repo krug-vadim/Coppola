@@ -15,4 +15,6 @@ SIZE_t UART_put(char *str);
 BOOL_t UART_write_byte(uint8_t byte);
 BOOL_t UART_read_byte(uint8_t *byte);
 
+void UART_io_init(IO_INTERFACE_t *io);
+
 #endif

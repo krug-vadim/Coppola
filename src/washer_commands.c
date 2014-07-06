@@ -5,11 +5,12 @@
 #include "washer_hw.h"
 
 extern WASHER_t washer;
+extern IO_INTERFACE_t washer_io;
 
 BOOL_t
 WASHER_dumb_command(uint8_t *data, SIZE_t cnt)
 {
-	/* XXX: io.log("DUMB COMMAND!\r\n"); */
+	washer_io.log("DUMB COMMAND!\r\n");
 	return FALSE;
 }
 
@@ -60,7 +61,12 @@ WASHER_pre_valve_set_command(uint8_t *data, SIZE_t cnt)
 BOOL_t
 WASHER_motor_dir_set_command(uint8_t *data, SIZE_t cnt)
 {
-	return FALSE;
+	if ( cnt < sizeof(washer.motor_power) )
+		return FALSE;
+
+	washer.motor_power = *data;
+
+	return TRUE;
 }
 
 BOOL_t
@@ -77,29 +83,35 @@ WASHER_motor_power_set_command(uint8_t *data, SIZE_t cnt)
 BOOL_t
 WASHER_water_pump_set_command(uint8_t *data, SIZE_t cnt)
 {
-	return FALSE;
+	if ( cnt == 0 )
+		return FALSE;
+
+	washer.is_on[WASHER_PERIPHERAL_WATER_PUMP] = data[0];
+
+	return TRUE;
 }
 
 BOOL_t
 WASHER_tacho_get_command(uint8_t *data, SIZE_t cnt)
 {
-	return FALSE;
+	return washer_io.write((uint8_t *)&washer.tacho_fq, sizeof(washer.tacho_fq));
 }
 
 BOOL_t
 WASHER_sonar_get_command(uint8_t *data, SIZE_t cnt)
 {
-	return FALSE;
+	return washer_io.write((uint8_t *)&washer.sonar_fq, sizeof(washer.sonar_fq));
 }
 
 BOOL_t
 WASHER_door_get_command(uint8_t *data, SIZE_t cnt)
 {
-	return FALSE;
+	return washer_io.write((uint8_t *)&washer.is_on[WASHER_PERIPHERAL_DOOR],
+	                sizeof(washer.is_on[WASHER_PERIPHERAL_DOOR]));
 }
 
 BOOL_t
 WASHER_id_get_command(uint8_t *data, SIZE_t cnt)
 {
-	return FALSE;
+	return washer_io.write((uint8_t *)&washer.id, sizeof(washer.id));
 }

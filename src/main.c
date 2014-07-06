@@ -43,6 +43,9 @@ hw_init(void)
 void
 init(void)
 {
+	IO_INTERFACE_t uart_io;
+	IO_INTERFACE_t protocol_io;
+
 	hw_init();
 
 	/* modules init */
@@ -51,12 +54,18 @@ init(void)
 	WASHER_init();
 
 	/* post setup */
-	PROTOCOL_set_write_func(UART_write);
-	PROTOCOL_set_read_func(UART_read);
-	PROTOCOL_set_write_byte_func(UART_write_byte);
-	PROTOCOL_set_read_byte_func(UART_read_byte);
+
+	UART_io_init(&uart_io);
+	PROTOCOL_io_set(&uart_io);
+
+	protocol_io = uart_io;
+	protocol_io.write = PROTOCOL_write;
+
+	WASHER_io_set(&protocol_io);
+
 	PROTOCOL_set_log_func(DUMB_log_func);
 	/*PROTOCOL_set_log_func(UART_put);*/
+
 	PROTOCOL_set_parser_func(WASHER_parse);
 }
 

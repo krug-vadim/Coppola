@@ -35,14 +35,21 @@ WASHER_COMMAND_t;
 
 #define WASHER_COMMANDS_COUNT (0x15U)
 
+typedef int16_t  WASHER_POWER_t;
 typedef uint16_t WASHER_VALUE_t;
+typedef uint16_t WASHER_ID_t;
+
+#define WASHER_ID 0x01
 
 typedef struct
 {
+	WASHER_ID_t    id;
+
 	WASHER_VALUE_t sonar_fq;
 	WASHER_VALUE_t tacho_fq;
 	WASHER_VALUE_t temperature;
-	WASHER_VALUE_t motor_power;
+
+	WASHER_POWER_t motor_power;
 
 	WASHER_PERIPHERAL_STATE is_on[WASHER_PERIPHERAL_COUNT];
 }
@@ -55,5 +62,7 @@ void WASHER_process(void);
 void WASHER_one_second_tick(void);
 
 BOOL_t WASHER_parse(uint8_t *data, SIZE_t cnt);
+
+void WASHER_io_set(IO_INTERFACE_t *io);
 
 #endif
