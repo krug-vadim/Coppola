@@ -92,7 +92,7 @@ main(void)
 	{
 		UART_process();
 		PROTOCOL_process();
-		WASHER_process();
+		/*WASHER_process();*/
 	}
 
 	return 0;

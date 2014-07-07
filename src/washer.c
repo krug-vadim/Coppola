@@ -13,7 +13,7 @@ IO_INTERFACE_t washer_io;
 void
 WASHER_init_washer(void)
 {
-	SIZE_t i;
+	uint8_t i;
 
 	washer.id = WASHER_ID;
 	washer.sonar_fq = 0;
