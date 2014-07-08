@@ -7,6 +7,8 @@
 extern WASHER_t washer;
 extern IO_INTERFACE_t washer_io;
 
+static WASHER_ANSWER_t answer;
+
 BOOL_t
 WASHER_dumb_command(uint8_t *data, SIZE_t cnt)
 {
@@ -94,24 +96,31 @@ WASHER_water_pump_set_command(uint8_t *data, SIZE_t cnt)
 BOOL_t
 WASHER_tacho_get_command(uint8_t *data, SIZE_t cnt)
 {
-	return washer_io.write((uint8_t *)&washer.tacho_fq, sizeof(washer.tacho_fq));
+	answer.type = WASHER_ANSWER_TYPE_TACHO;
+	answer.data = washer.tacho_fq;
+	return washer_io.write((uint8_t *)&answer, sizeof(answer));
 }
 
 BOOL_t
 WASHER_sonar_get_command(uint8_t *data, SIZE_t cnt)
 {
-	return washer_io.write((uint8_t *)&washer.sonar_fq, sizeof(washer.sonar_fq));
+	answer.type = WASHER_ANSWER_TYPE_SONAR;
+	answer.data = washer.sonar_fq;
+	return washer_io.write((uint8_t *)&answer, sizeof(answer));
 }
 
 BOOL_t
 WASHER_door_get_command(uint8_t *data, SIZE_t cnt)
 {
-	return washer_io.write((uint8_t *)&washer.is_on[WASHER_PERIPHERAL_DOOR],
-	                sizeof(washer.is_on[WASHER_PERIPHERAL_DOOR]));
+	answer.type = WASHER_ANSWER_TYPE_DOOR;
+	answer.data = washer.is_on[WASHER_PERIPHERAL_DOOR];
+	return washer_io.write((uint8_t *)&answer, sizeof(answer));
 }
 
 BOOL_t
 WASHER_id_get_command(uint8_t *data, SIZE_t cnt)
 {
-	return washer_io.write((uint8_t *)&washer.id, sizeof(washer.id));
+	answer.type = WASHER_ANSWER_TYPE_ID;
+	answer.data = washer.id;
+	return washer_io.write((uint8_t *)&answer, sizeof(answer));
 }

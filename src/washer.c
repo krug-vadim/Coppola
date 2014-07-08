@@ -64,7 +64,7 @@ WASHER_startup(void)
 BOOL_t
 WASHER_command(WASHER_COMMAND_t cmd, uint8_t *data, SIZE_t cnt)
 {
-	if ( data[0] < WASHER_COMMANDS_COUNT )
+	if ( cmd < WASHER_COMMANDS_COUNT )
 		return commands[data[0]](&data[1], cnt - 1);
 
 	return TRUE;
