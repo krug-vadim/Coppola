@@ -63,10 +63,10 @@ WASHER_pre_valve_set_command(uint8_t *data, SIZE_t cnt)
 BOOL_t
 WASHER_motor_dir_set_command(uint8_t *data, SIZE_t cnt)
 {
-	if ( cnt < sizeof(washer.motor_power) )
+	if ( cnt == 0 )
 		return FALSE;
 
-	washer.motor_power = *data;
+	washer.is_on[WASHER_PERIPHERAL_RELAY] = data[0];
 
 	return TRUE;
 }
@@ -74,10 +74,15 @@ WASHER_motor_dir_set_command(uint8_t *data, SIZE_t cnt)
 BOOL_t
 WASHER_motor_power_set_command(uint8_t *data, SIZE_t cnt)
 {
-	if ( cnt == 0 )
+	if ( cnt < sizeof(washer.motor_power) )
 		return FALSE;
 
-	washer.motor_power = data[0];
+	washer.motor_power = (((uint16_t)data[0]) << 0)
+	                   | (((uint16_t)data[1]) << 8);
+
+	answer.type = WASHER_ANSWER_TYPE_TACHO;
+	answer.data = washer.motor_power;
+	washer_io.write((uint8_t *)&answer, sizeof(answer));
 
 	return TRUE;
 }

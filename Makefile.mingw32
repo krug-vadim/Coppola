@@ -3,6 +3,8 @@ PROGRAM      = Coppola
 CC           = D:/dev/msp430/msp430gcc/bin/msp430-elf-gcc
 OBJCOPY      = D:/dev/msp430/msp430gcc/bin/msp430-elf-objcopy
 
+OUTPUT      := D:/\#io/Coppola
+
 CPU          = msp430
 DEVICE       = msp430g2553
 
@@ -42,7 +44,7 @@ all: $(PROGRAM)
 $(PROGRAM) : $(PROGRAM).hex
 
 %.hex: %.elf
-	$(OBJCOPY) -I elf32-msp430 -O ihex $< $@
+	$(OBJCOPY) -I elf32-msp430 -O ihex $< $(OUTPUT)/$@
 
 %.elf: $(OBJECTS)
 	$(CC) $(OBJECTS) -o $@ $(LFLAGS)

@@ -12,8 +12,8 @@ WASHER_ANSWER_TYPE_t;
 
 typedef struct __attribute__((packed))
 {
-	WASHER_ANSWER_TYPE_t type;
-	uint32_t             data;
+	uint8_t  type;
+	uint32_t data;
 }
 WASHER_ANSWER_t;
 

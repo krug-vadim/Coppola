@@ -4,7 +4,7 @@
 #include "washer_commands.h"
 #include "washer_hw.h"
 
-static IO_FUNC_ptr commands[WASHER_COMMANDS_COUNT];
+/*static IO_FUNC_ptr commands[WASHER_COMMANDS_COUNT];*/
 
 WASHER_t washer;
 
@@ -29,21 +29,6 @@ WASHER_init_washer(void)
 void
 WASHER_init_commands(void)
 {
-	SIZE_t i;
-	for(i = 0; i < WASHER_COMMANDS_COUNT; i++)
-		commands[i] = WASHER_dumb_command;
-
-	commands[0x01] = WASHER_door_set_command;
-	commands[0x02] = WASHER_water_heater_set_command;
-	commands[0x03] = WASHER_main_valve_set_command;
-	commands[0x04] = WASHER_pre_valve_set_command;
-	commands[0x05] = WASHER_motor_dir_set_command;
-	commands[0x06] = WASHER_motor_power_set_command;
-	commands[0x07] = WASHER_water_pump_set_command;
-	commands[0x11] = WASHER_tacho_get_command;
-	commands[0x12] = WASHER_sonar_get_command;
-	commands[0x13] = WASHER_door_get_command;
-	commands[0x14] = WASHER_id_get_command;
 }
 
 void
@@ -64,8 +49,8 @@ WASHER_startup(void)
 BOOL_t
 WASHER_command(WASHER_COMMAND_t cmd, uint8_t *data, SIZE_t cnt)
 {
-	if ( cmd < WASHER_COMMANDS_COUNT )
-		return commands[data[0]](&data[1], cnt - 1);
+	/*if ( cmd < WASHER_COMMANDS_COUNT )
+		return commands[data[0]](&data[1], cnt - 1);*/
 
 	return TRUE;
 }
@@ -73,10 +58,55 @@ WASHER_command(WASHER_COMMAND_t cmd, uint8_t *data, SIZE_t cnt)
 BOOL_t
 WASHER_parse(uint8_t *data, SIZE_t cnt)
 {
-	if ( cnt < 1 )
-		return FALSE;
+	switch ( data[0] )
+	{
+		case WASHER_COMMAND_DOOR_SET:
+			return WASHER_door_set_command(&data[1], cnt - 1);
+			break;
 
-	return WASHER_command(data[0], &data[1], cnt - 1);
+		case WASHER_COMMAND_WATER_HEATER_SET:
+			return WASHER_water_heater_set_command(&data[1], cnt - 1);
+			break;
+
+		case WASHER_COMMAND_MAIN_VALVE_SET:
+			return WASHER_main_valve_set_command(&data[1], cnt - 1);
+			break;
+
+		case WASHER_COMMAND_PRE_VALVE_SET:
+			return WASHER_pre_valve_set_command(&data[1], cnt - 1);
+			break;
+
+		case WASHER_COMMAND_MOTOR_DIR_SET:
+			return WASHER_motor_dir_set_command(&data[1], cnt - 1);
+			break;
+
+		case WASHER_COMMAND_MOTOR_POWER_SET:
+			return WASHER_motor_power_set_command(&data[1], cnt - 1);
+			break;
+
+		case WASHER_COMMAND_WATER_PUMP_SET:
+			return WASHER_water_pump_set_command(&data[1], cnt - 1);
+			break;
+
+		case WASHER_COMMAND_TACHO_GET:
+			return WASHER_tacho_get_command(&data[1], cnt - 1);
+			break;
+
+		case WASHER_COMMAND_SONAR_GET:
+			return WASHER_sonar_get_command(&data[1], cnt - 1);
+			break;
+
+		case WASHER_COMMAND_DOOR_GET:
+			return WASHER_door_get_command(&data[1], cnt - 1);
+			break;
+
+		case WASHER_COMMAND_ID_GET:
+			return WASHER_id_get_command(&data[1], cnt - 1);
+			break;
+
+		default:
+			return FALSE;
+	}
 }
 
 void
