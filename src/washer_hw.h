@@ -16,7 +16,7 @@
 #define TACHO_SENSE_PIN (P1_0)
 #define HEATER_TEMP_PIN (P1_5)
 
-#define HEATER_TEMP_ANALOG A5
+#define HEATER_TEMP_ANALOG (INCH_5)
 
 typedef enum
 {
@@ -51,14 +51,14 @@ typedef enum
 }
 PIN_STATE_t;
 
-typedef struct
-{
-	volatile       uint8_t *out;
-	volatile       uint8_t *dir;
-	volatile const uint8_t *in;
-	volatile       uint8_t pin;
-}
-PIN_REGS_t;
+#define PIN_MODE_OUTPUT(p) (p < 8) ? (P1DIR |=  (1 << p)) : (P2DIR |=  (1 << (p - 8)))
+#define PIN_MODE_INPUT(p)  (p < 8) ? (P1DIR &= ~(1 << p)) : (P2DIR &= ~(1 << (p - 8)))
+
+#define PIN_SET_LOW(p)     (p < 8) ? (P1OUT &= ~(1 << p)) : (P2OUT &= ~(1 << (p - 8)))
+#define PIN_SET_HIGH(p)    (p < 8) ? (P1OUT |=  (1 << p)) : (P2OUT |=  (1 << (p - 8)))
+#define PIN_TOGGLE(p)      (p < 8) ? (P1OUT ^=  (1 << p)) : (P2OUT ^=  (1 << (p - 8)))
+
+#define PIN_VALUE(p)       ( (p < 8) ? (P1IN & (1 << p)) : (P2IN & (1 << (p - 8))) )
 
 void WASHER_HW_init(void);
 void WASHER_HW_startup(void);

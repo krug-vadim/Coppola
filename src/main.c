@@ -35,9 +35,13 @@ hw_init(void)
 	/* ACLK = VLO = ~ 12 KHz */
 	BCSCTL3 |= LFXT1S_2;
 
-	/* */
-	P1OUT = BIT0 + BIT6;
-	P1DIR = BIT0 + BIT6;
+	/* Timer A0 ACLK/1, UP 1 second */
+	TA0CCR0 = 12000;
+	TA0CCTL0 = 0x10;
+	TA0CTL = TASSEL_1
+	       | ID_0
+	       | MC_1
+	       ; /* Timer A0 with ACLK, count UP /1 */
 }
 
 void
@@ -92,14 +96,14 @@ main(void)
 	{
 		UART_process();
 		PROTOCOL_process();
-		/*WASHER_process();*/
+		WASHER_process();
 	}
 
 	return 0;
 }
 
 /* TIMERA0 interrupt service routine */
-void __attribute__((interrupt(TIMER0_A0_VECTOR))) Timer_A(void)
+void __attribute__((interrupt(TIMER0_A0_VECTOR))) one_second(void)
 {
-	P1OUT ^= (BIT6);
+	WASHER_one_second_tick();
 }

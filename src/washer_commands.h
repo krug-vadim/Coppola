@@ -3,10 +3,29 @@
 
 typedef enum
 {
-	WASHER_ANSWER_TYPE_TACHO = 0xF1,
-	WASHER_ANSWER_TYPE_SONAR = 0xF2,
-	WASHER_ANSWER_TYPE_DOOR  = 0xF3,
-	WASHER_ANSWER_TYPE_ID    = 0xF4
+	WASHER_COMMAND_DOOR_SET         = 0x01,
+	WASHER_COMMAND_WATER_HEATER_SET = 0x02,
+	WASHER_COMMAND_MAIN_VALVE_SET   = 0x03,
+	WASHER_COMMAND_PRE_VALVE_SET    = 0x04,
+	WASHER_COMMAND_MOTOR_DIR_SET    = 0x05,
+	WASHER_COMMAND_MOTOR_POWER_SET  = 0x06,
+	WASHER_COMMAND_WATER_PUMP_SET   = 0x07,
+	WASHER_COMMAND_TACHO_GET        = 0x11,
+	WASHER_COMMAND_SONAR_GET        = 0x12,
+	WASHER_COMMAND_DOOR_GET         = 0x13,
+	WASHER_COMMAND_ID_GET           = 0x14,
+	WASHER_COMMAND_RESET            = 0x15,
+	WASHER_COMMAND_TEMPERATURE_GET  = 0x16
+}
+WASHER_COMMAND_t;
+
+typedef enum
+{
+	WASHER_ANSWER_TYPE_TACHO       = 0xF1,
+	WASHER_ANSWER_TYPE_SONAR       = 0xF2,
+	WASHER_ANSWER_TYPE_DOOR        = 0xF3,
+	WASHER_ANSWER_TYPE_ID          = 0xF4,
+	WASHER_ANSWER_TYPE_TEMPERATURE = 0xF5
 }
 WASHER_ANSWER_TYPE_t;
 
@@ -27,7 +46,9 @@ BOOL_t WASHER_motor_power_set_command(uint8_t *data, SIZE_t cnt);
 BOOL_t WASHER_water_pump_set_command(uint8_t *data, SIZE_t cnt);
 BOOL_t WASHER_tacho_get_command(uint8_t *data, SIZE_t cnt);
 BOOL_t WASHER_sonar_get_command(uint8_t *data, SIZE_t cnt);
+BOOL_t WASHER_temperature_get_command(uint8_t *data, SIZE_t cnt);
 BOOL_t WASHER_door_get_command(uint8_t *data, SIZE_t cnt);
 BOOL_t WASHER_id_get_command(uint8_t *data, SIZE_t cnt);
+BOOL_t WASHER_reset_command(uint8_t *data, SIZE_t cnt);
 
 #endif

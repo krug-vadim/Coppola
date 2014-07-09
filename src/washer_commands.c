@@ -22,7 +22,7 @@ WASHER_door_set_command(uint8_t *data, SIZE_t cnt)
 	if ( cnt == 0 )
 		return FALSE;
 
-	washer.is_on[WASHER_PERIPHERAL_DOOR] = data[0];
+	washer.is_on[WASHER_PERIPHERAL_DOOR] = (data[0] == 0x01) ? TRUE : FALSE;
 
 	return TRUE;
 }
@@ -33,7 +33,7 @@ WASHER_water_heater_set_command(uint8_t *data, SIZE_t cnt)
 	if ( cnt == 0 )
 		return FALSE;
 
-	washer.is_on[WASHER_PERIPHERAL_WATER_HEATER] = data[0];
+	washer.is_on[WASHER_PERIPHERAL_WATER_HEATER] = (data[0] == 0x01) ? TRUE : FALSE;
 
 	return TRUE;
 }
@@ -44,7 +44,7 @@ WASHER_main_valve_set_command(uint8_t *data, SIZE_t cnt)
 	if ( cnt == 0 )
 		return FALSE;
 
-	washer.is_on[WASHER_PERIPHERAL_MAIN_VALVE] = data[0];
+	washer.is_on[WASHER_PERIPHERAL_MAIN_VALVE] = (data[0] == 0x01) ? TRUE : FALSE;
 
 	return TRUE;
 }
@@ -55,7 +55,7 @@ WASHER_pre_valve_set_command(uint8_t *data, SIZE_t cnt)
 	if ( cnt == 0 )
 		return FALSE;
 
-	washer.is_on[WASHER_PERIPHERAL_PRE_VALVE] = data[0];
+	washer.is_on[WASHER_PERIPHERAL_PRE_VALVE] = (data[0] == 0x01) ? TRUE : FALSE;
 
 	return TRUE;
 }
@@ -66,7 +66,7 @@ WASHER_motor_dir_set_command(uint8_t *data, SIZE_t cnt)
 	if ( cnt == 0 )
 		return FALSE;
 
-	washer.is_on[WASHER_PERIPHERAL_RELAY] = data[0];
+	washer.is_on[WASHER_PERIPHERAL_RELAY] = (data[0] == 0x01) ? TRUE : FALSE;
 
 	return TRUE;
 }
@@ -115,10 +115,18 @@ WASHER_sonar_get_command(uint8_t *data, SIZE_t cnt)
 }
 
 BOOL_t
+WASHER_temperature_get_command(uint8_t *data, SIZE_t cnt)
+{
+	answer.type = WASHER_ANSWER_TYPE_TEMPERATURE;
+	answer.data = washer.temperature;
+	return washer_io.write((uint8_t *)&answer, sizeof(answer));
+}
+
+BOOL_t
 WASHER_door_get_command(uint8_t *data, SIZE_t cnt)
 {
 	answer.type = WASHER_ANSWER_TYPE_DOOR;
-	answer.data = washer.is_on[WASHER_PERIPHERAL_DOOR];
+	answer.data = (washer.is_on[WASHER_PERIPHERAL_DOOR]) ? 0x01 : 0xFF;
 	return washer_io.write((uint8_t *)&answer, sizeof(answer));
 }
 
@@ -127,5 +135,12 @@ WASHER_id_get_command(uint8_t *data, SIZE_t cnt)
 {
 	answer.type = WASHER_ANSWER_TYPE_ID;
 	answer.data = washer.id;
-	return washer_io.write((uint8_t *)&answer, sizeof(answer));
+	return washer_io.write((uint8_t *)&answer.type, sizeof(answer.type));
+}
+
+BOOL_t
+WASHER_reset_command(uint8_t *data, SIZE_t cnt)
+{
+	/*asm("RST;");*/
+	return TRUE;
 }

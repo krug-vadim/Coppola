@@ -4,8 +4,6 @@
 #include "washer_commands.h"
 #include "washer_hw.h"
 
-/*static IO_FUNC_ptr commands[WASHER_COMMANDS_COUNT];*/
-
 WASHER_t washer;
 
 IO_INTERFACE_t washer_io;
@@ -27,16 +25,10 @@ WASHER_init_washer(void)
 }
 
 void
-WASHER_init_commands(void)
-{
-}
-
-void
 WASHER_init(void)
 {
 	WASHER_HW_init();
 
-	WASHER_init_commands();
 	WASHER_init_washer();
 }
 
@@ -44,15 +36,6 @@ void
 WASHER_startup(void)
 {
 	WASHER_HW_startup();
-}
-
-BOOL_t
-WASHER_command(WASHER_COMMAND_t cmd, uint8_t *data, SIZE_t cnt)
-{
-	/*if ( cmd < WASHER_COMMANDS_COUNT )
-		return commands[data[0]](&data[1], cnt - 1);*/
-
-	return TRUE;
 }
 
 BOOL_t
@@ -102,6 +85,14 @@ WASHER_parse(uint8_t *data, SIZE_t cnt)
 
 		case WASHER_COMMAND_ID_GET:
 			return WASHER_id_get_command(&data[1], cnt - 1);
+			break;
+
+		case WASHER_COMMAND_TEMPERATURE_GET:
+			return WASHER_temperature_get_command(&data[1], cnt - 1);
+			break;
+
+		case WASHER_COMMAND_RESET:
+			return WASHER_reset_command(&data[1], cnt - 1);
 			break;
 
 		default:
