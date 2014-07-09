@@ -43,8 +43,8 @@ WASHER_parse(uint8_t *data, SIZE_t cnt)
 {
 	switch ( data[0] )
 	{
-		case WASHER_COMMAND_DOOR_SET:
-			return WASHER_door_set_command(&data[1], cnt - 1);
+		case WASHER_COMMAND_DOORLOCK_SET:
+			return WASHER_doorlock_set_command(&data[1], cnt - 1);
 			break;
 
 		case WASHER_COMMAND_WATER_HEATER_SET:
@@ -79,8 +79,8 @@ WASHER_parse(uint8_t *data, SIZE_t cnt)
 			return WASHER_sonar_get_command(&data[1], cnt - 1);
 			break;
 
-		case WASHER_COMMAND_DOOR_GET:
-			return WASHER_door_get_command(&data[1], cnt - 1);
+		case WASHER_COMMAND_DOORLOCK_GET:
+			return WASHER_doorlock_get_command(&data[1], cnt - 1);
 			break;
 
 		case WASHER_COMMAND_ID_GET:
@@ -93,6 +93,10 @@ WASHER_parse(uint8_t *data, SIZE_t cnt)
 
 		case WASHER_COMMAND_RESET:
 			return WASHER_reset_command(&data[1], cnt - 1);
+			break;
+
+		case WASHER_COMMAND_ZEROCROSS_GET:
+			return WASHER_zerocross_get_command(&data[1], cnt - 1);
 			break;
 
 		default:

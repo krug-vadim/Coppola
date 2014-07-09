@@ -17,12 +17,12 @@ WASHER_dumb_command(uint8_t *data, SIZE_t cnt)
 }
 
 BOOL_t
-WASHER_door_set_command(uint8_t *data, SIZE_t cnt)
+WASHER_doorlock_set_command(uint8_t *data, SIZE_t cnt)
 {
 	if ( cnt == 0 )
 		return FALSE;
 
-	washer.is_on[WASHER_PERIPHERAL_DOOR] = (data[0] == 0x01) ? TRUE : FALSE;
+	washer.is_on[WASHER_PERIPHERAL_DOORLOCK] = (data[0] == 0x01) ? TRUE : FALSE;
 
 	return TRUE;
 }
@@ -80,10 +80,6 @@ WASHER_motor_power_set_command(uint8_t *data, SIZE_t cnt)
 	washer.motor_power = (((uint16_t)data[0]) << 0)
 	                   | (((uint16_t)data[1]) << 8);
 
-	answer.type = WASHER_ANSWER_TYPE_TACHO;
-	answer.data = washer.motor_power;
-	washer_io.write((uint8_t *)&answer, sizeof(answer));
-
 	return TRUE;
 }
 
@@ -101,7 +97,7 @@ WASHER_water_pump_set_command(uint8_t *data, SIZE_t cnt)
 BOOL_t
 WASHER_tacho_get_command(uint8_t *data, SIZE_t cnt)
 {
-	answer.type = WASHER_ANSWER_TYPE_TACHO;
+	answer.type = WASHER_COMMAND_TACHO_ANSWER;
 	answer.data = washer.tacho_fq;
 	return washer_io.write((uint8_t *)&answer, sizeof(answer));
 }
@@ -109,31 +105,39 @@ WASHER_tacho_get_command(uint8_t *data, SIZE_t cnt)
 BOOL_t
 WASHER_sonar_get_command(uint8_t *data, SIZE_t cnt)
 {
-	answer.type = WASHER_ANSWER_TYPE_SONAR;
+	answer.type = WASHER_COMMAND_SONAR_ANSWER;
 	answer.data = washer.sonar_fq;
+	return washer_io.write((uint8_t *)&answer, sizeof(answer));
+}
+
+BOOL_t
+WASHER_zerocross_get_command(uint8_t *data, SIZE_t cnt)
+{
+	answer.type = WASHER_COMMAND_ZEROCROSS_ANSWER;
+	answer.data = washer.zerocross_fq;
 	return washer_io.write((uint8_t *)&answer, sizeof(answer));
 }
 
 BOOL_t
 WASHER_temperature_get_command(uint8_t *data, SIZE_t cnt)
 {
-	answer.type = WASHER_ANSWER_TYPE_TEMPERATURE;
+	answer.type = WASHER_COMMAND_TEMPERATURE_ANSWER;
 	answer.data = washer.temperature;
 	return washer_io.write((uint8_t *)&answer, sizeof(answer));
 }
 
 BOOL_t
-WASHER_door_get_command(uint8_t *data, SIZE_t cnt)
+WASHER_doorlock_get_command(uint8_t *data, SIZE_t cnt)
 {
-	answer.type = WASHER_ANSWER_TYPE_DOOR;
-	answer.data = (washer.is_on[WASHER_PERIPHERAL_DOOR]) ? 0x01 : 0xFF;
+	answer.type = WASHER_COMMAND_DOORLOCK_ANSWER;
+	answer.data = (washer.is_on[WASHER_PERIPHERAL_DOORLOCK]) ? 0x01 : 0xFF;
 	return washer_io.write((uint8_t *)&answer, sizeof(answer));
 }
 
 BOOL_t
 WASHER_id_get_command(uint8_t *data, SIZE_t cnt)
 {
-	answer.type = WASHER_ANSWER_TYPE_ID;
+	answer.type = WASHER_COMMAND_ID_ANSWER;
 	answer.data = washer.id;
 	return washer_io.write((uint8_t *)&answer.type, sizeof(answer.type));
 }

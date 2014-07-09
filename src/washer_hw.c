@@ -5,10 +5,10 @@
 
 static WASHER_VALUE_t sonar_fq_current;
 static WASHER_VALUE_t tacho_fq_current;
+static WASHER_VALUE_t zerocross_fq_current;
 
 static uint8_t sonar_last_state;
 static uint8_t tacho_last_state;
-
 static uint8_t zerocross_last_state;
 
 static BOOL_t  relay_is_on;
@@ -103,7 +103,7 @@ WASHER_HW_startup(void)
 void
 WASHER_HW_peripherals_set(void)
 {
-	if ( washer.is_on[WASHER_PERIPHERAL_DOOR] )
+	if ( washer.is_on[WASHER_PERIPHERAL_DOORLOCK] )
 		PIN_SET_HIGH(DOORLOCK_PIN);
 	else
 		PIN_SET_LOW(DOORLOCK_PIN);
@@ -156,6 +156,7 @@ WASHER_HW_process(void)
 	pin_state = PIN_VALUE(ZEROCROSS_PIN);
 	if( zerocross_last_state != pin_state )
 	{
+		zerocross_fq_current++;
 		zerocross_last_state = pin_state;
 
 		if ( washer.motor_power )
@@ -180,6 +181,9 @@ WASHER_HW_one_second_tick(void)
 
 	washer.tacho_fq = tacho_fq_current;
 	tacho_fq_current = 0;
+
+	washer.zerocross_fq = zerocross_fq_current;
+	zerocross_fq_current = 0;
 }
 
 /* TIMER1_A0 interrupt service routine */

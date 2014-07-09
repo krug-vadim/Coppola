@@ -3,7 +3,7 @@
 
 typedef enum
 {
-	WASHER_PERIPHERAL_DOOR = 0x00,
+	WASHER_PERIPHERAL_DOORLOCK = 0x00,
 
 	WASHER_PERIPHERAL_WATER_PUMP = 0x01,
 	WASHER_PERIPHERAL_WATER_HEATER = 0x02,
@@ -31,6 +31,8 @@ typedef struct
 
 	WASHER_VALUE_t sonar_fq;
 	WASHER_VALUE_t tacho_fq;
+	WASHER_VALUE_t zerocross_fq;
+
 	WASHER_VALUE_t temperature;
 
 	WASHER_POWER_t motor_power;
