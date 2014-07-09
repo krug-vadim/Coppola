@@ -159,19 +159,15 @@ WASHER_HW_process(void)
 		zerocross_fq_current++;
 		zerocross_last_state = pin_state;
 
-		PIN_TOGGLE(MOTOR_PIN);
-
-		/*if ( washer.motor_power )
-		{*/
+		if ( washer.motor_power )
+		{
 			/* XXX: calculate */
-			/*delay_us(washer.motor_power);*/
+			delay_us(washer.motor_power);
 
-			/*PIN_SET_HIGH(MOTOR_PIN);*/
-			/*delay_us(10);*/ /* XXX: why 100? dunno */
-			/*PIN_SET_LOW(MOTOR_PIN);*/
-		/*}
-		else
-			PIN_SET_LOW(MOTOR_PIN);*/
+			PIN_SET_HIGH(MOTOR_PIN);
+			delay_us(100); /* XXX: why 100? dunno */
+			PIN_SET_LOW(MOTOR_PIN);
+		}
 	}
 
 	WASHER_HW_peripherals_set();

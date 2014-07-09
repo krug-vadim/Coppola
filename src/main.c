@@ -35,6 +35,7 @@ hw_init(void)
 	/* ACLK = VLO = ~ 12 KHz */
 	BCSCTL3 |= LFXT1S_2;
 
+	/* setting XIN and XOUT as digital */
 	P2SEL  &= ~(BIT6 | BIT7);
 	P2SEL2 &= ~(BIT6 | BIT7);
 
@@ -120,6 +121,7 @@ void __attribute__((interrupt(TIMER0_A0_VECTOR))) one_second(void)
 {
 	WASHER_one_second_tick();
 }
+
 /* TIMERA0 interrupt service routine */
 void __attribute__((interrupt(TIMER1_A0_VECTOR))) zerocrossing(void)
 {
