@@ -83,7 +83,7 @@ QUEUE_put(QUEUE_t *queue, char *str)
 BOOL_t
 QUEUE_write_byte(QUEUE_t *queue, uint8_t src)
 {
-	if ( (queue->size - queue->used) == 0 )
+	if ( queue->used >= queue->size )
 		return FALSE;
 
 	queue->used++;

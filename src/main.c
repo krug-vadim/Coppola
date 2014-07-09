@@ -35,13 +35,26 @@ hw_init(void)
 	/* ACLK = VLO = ~ 12 KHz */
 	BCSCTL3 |= LFXT1S_2;
 
+	P2SEL  &= ~(BIT6 | BIT7);
+	P2SEL2 &= ~(BIT6 | BIT7);
+
+	P2DIR |= (1 << 3);
+
 	/* Timer A0 ACLK/1, UP 1 second */
 	TA0CCR0 = 12000;
 	TA0CCTL0 = 0x10;
 	TA0CTL = TASSEL_1
 	       | ID_0
 	       | MC_1
-	       ; /* Timer A0 with ACLK, count UP /1 */
+	       ;
+
+	/* Timer A0 ACLK/1, UP 1 second */
+	TA1CCR0 = 200;
+	TA1CCTL0 = 0x10;
+	TA1CTL = TASSEL_1
+	       | ID_0
+	       | MC_1
+	       ;
 }
 
 void
@@ -107,3 +120,9 @@ void __attribute__((interrupt(TIMER0_A0_VECTOR))) one_second(void)
 {
 	WASHER_one_second_tick();
 }
+/* TIMERA0 interrupt service routine */
+void __attribute__((interrupt(TIMER1_A0_VECTOR))) zerocrossing(void)
+{
+	P2OUT ^= (1 << 3);
+}
+
