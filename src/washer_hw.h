@@ -18,6 +18,10 @@
 
 #define HEATER_TEMP_ANALOG (INCH_5)
 
+#define MOTOR_IMPULSE_LENGTH (2U)   /* 2 * 80uS = 160 uS */
+#define MOTOR_POWER_MAX      (255U)
+#define MOTOR_POWER_50HZ     (250U) /* 250 * 80uS = 20 mS */
+
 typedef enum
 {
 	/* port one */
@@ -50,6 +54,14 @@ typedef enum
 	PIN_STATE_HIGH = 0xFF
 }
 PIN_STATE_t;
+
+typedef enum
+{
+	MOTOR_STATE_OFF     = 0x00,
+	MOTOR_STATE_WAIT    = 0x01,
+	MOTOR_STATE_IMPULSE = 0x02
+}
+MOTOR_STATE_t;
 
 #define PIN_MODE_OUTPUT(p) (p < 8) ? (P1DIR |=  (1 << p)) : (P2DIR |=  (1 << (p - 8)))
 #define PIN_MODE_INPUT(p)  (p < 8) ? (P1DIR &= ~(1 << p)) : (P2DIR &= ~(1 << (p - 8)))

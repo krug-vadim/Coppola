@@ -17,6 +17,8 @@ static BOOL_t  need_toggle_relay;
 extern WASHER_t washer;
 extern IO_INTERFACE_t washer_io;
 
+static MOTOR_STATE_t motor_state;
+
 void delay_us(uint16_t time)
 {
 	for(; time != 0; time--)
@@ -80,6 +82,16 @@ WASHER_HW_init(void)
 	PIN_MODE_OUTPUT(VALVE_PRE_PIN);
 
 	WASHER_HW_adc_init();
+
+	/* Timer A1 ACLK/1, UP 1 second */
+	TA1CCR0 = 0;
+	TA1CCTL0 = 0x10;
+	TA1CTL = TASSEL_1
+	       | ID_0
+	       | MC_1
+	       ;
+
+	motor_state = MOTOR_STATE_OFF;
 }
 
 void
@@ -159,14 +171,18 @@ WASHER_HW_process(void)
 		zerocross_fq_current++;
 		zerocross_last_state = pin_state;
 
-		if ( washer.motor_power )
+		if ( washer.motor_power && motor_state == MOTOR_STATE_OFF )
 		{
-			/* XXX: calculate */
-			delay_us(washer.motor_power);
-
-			PIN_SET_HIGH(MOTOR_PIN);
-			delay_us(100); /* XXX: why 100? dunno */
-			PIN_SET_LOW(MOTOR_PIN);
+			if ( washer.motor_power == MOTOR_POWER_MAX )
+			{
+				motor_state = MOTOR_STATE_IMPULSE;
+				TA1CCR0 = MOTOR_IMPULSE_LENGTH;
+			}
+			else
+			{
+				motor_state = MOTOR_STATE_WAIT;
+				TA1CCR0 = washer.motor_power;
+			}
 		}
 	}
 
@@ -186,13 +202,36 @@ WASHER_HW_one_second_tick(void)
 	zerocross_fq_current = 0;
 }
 
-/* TIMER1_A0 interrupt service routine */
-/*void __attribute__((interrupt(TIMER1_A0_VECTOR))) Timer_A(void)
+/* TIMERA1 interrupt service routine */
+void __attribute__((interrupt(TIMER1_A0_VECTOR))) zerocrossing(void)
 {
-	PIN_SET_HIGH(MOTOR_PIN);
-	delay_us(100);
-	PIN_SET_LOW(MOTOR_PIN);
-}*/
+	switch ( motor_state )
+	{
+		case MOTOR_STATE_OFF:
+			TA1CCR0 = 0;
+			PIN_SET_LOW(MOTOR_PIN);
+			motor_state = MOTOR_STATE_OFF;
+			break;
+
+		case MOTOR_STATE_WAIT:
+			TA1CCR0 = 2; /* 2 * 80uS = 1,6mS */
+			PIN_SET_HIGH(MOTOR_PIN);
+			motor_state = MOTOR_STATE_IMPULSE;
+			break;
+
+		case MOTOR_STATE_IMPULSE:
+			TA1CCR0 = 0;
+			PIN_SET_LOW(MOTOR_PIN);
+			motor_state = MOTOR_STATE_OFF;
+			break;
+
+		default:
+			TA1CCR0 = 0;
+			PIN_SET_LOW(MOTOR_PIN);
+			motor_state = MOTOR_STATE_OFF;
+			break;
+	}
+}
 
 void __attribute__((interrupt(ADC10_VECTOR))) ADC10_ISR(void)
 {

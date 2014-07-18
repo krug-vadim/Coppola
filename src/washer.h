@@ -19,7 +19,6 @@ typedef BOOL_t WASHER_PERIPHERAL_STATE;
 
 #define WASHER_PERIPHERAL_COUNT (6U)
 
-typedef int16_t  WASHER_POWER_t;
 typedef uint16_t WASHER_VALUE_t;
 typedef uint16_t WASHER_ID_t;
 
@@ -35,7 +34,7 @@ typedef struct
 
 	WASHER_VALUE_t temperature;
 
-	WASHER_POWER_t motor_power;
+	WASHER_VALUE_t motor_power;
 
 	WASHER_PERIPHERAL_STATE is_on[WASHER_PERIPHERAL_COUNT];
 }

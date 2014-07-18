@@ -74,11 +74,22 @@ WASHER_motor_dir_set_command(uint8_t *data, SIZE_t cnt)
 BOOL_t
 WASHER_motor_power_set_command(uint8_t *data, SIZE_t cnt)
 {
+	uint16_t temp;
+
 	if ( cnt < sizeof(washer.motor_power) )
 		return FALSE;
 
-	washer.motor_power = (((uint16_t)data[0]) << 0)
-	                   | (((uint16_t)data[1]) << 8);
+	temp = (((uint16_t)data[0]) << 0)
+	     | (((uint16_t)data[1]) << 8);
+
+	if ( temp == 0 )
+		temp = 0;
+	else if ( temp > (MOTOR_POWER_50HZ - MOTOR_IMPULSE_LENGTH) )
+		temp = MOTOR_POWER_MAX;
+	else
+		temp = MOTOR_POWER_50HZ - MOTOR_IMPULSE_LENGTH - temp;
+
+	washer.motor_power = temp;
 
 	return TRUE;
 }

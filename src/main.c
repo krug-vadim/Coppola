@@ -48,14 +48,6 @@ hw_init(void)
 	       | ID_0
 	       | MC_1
 	       ;
-
-	/* Timer A0 ACLK/1, UP 1 second */
-	TA1CCR0 = 200;
-	TA1CCTL0 = 0x10;
-	TA1CTL = TASSEL_1
-	       | ID_0
-	       | MC_1
-	       ;
 }
 
 void
@@ -121,10 +113,3 @@ void __attribute__((interrupt(TIMER0_A0_VECTOR))) one_second(void)
 {
 	WASHER_one_second_tick();
 }
-
-/* TIMERA0 interrupt service routine */
-void __attribute__((interrupt(TIMER1_A0_VECTOR))) zerocrossing(void)
-{
-	P2OUT ^= (1 << 3);
-}
-
