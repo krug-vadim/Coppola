@@ -100,7 +100,7 @@ WASHER_water_pump_set_command(uint8_t *data, SIZE_t cnt)
 	if ( cnt == 0 )
 		return FALSE;
 
-	washer.is_on[WASHER_PERIPHERAL_WATER_PUMP] = data[0];
+	washer.is_on[WASHER_PERIPHERAL_WATER_PUMP] = (data[0] == 0x01) ? TRUE : FALSE;
 
 	return TRUE;
 }
