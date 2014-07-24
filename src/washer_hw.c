@@ -173,7 +173,7 @@ WASHER_HW_process(void)
 
 		if ( washer.motor_power && motor_state == MOTOR_STATE_OFF )
 		{
-			if ( washer.motor_power == MOTOR_POWER_MAX )
+			if ( washer.motor_power >= MOTOR_POWER_MAX )
 			{
 				motor_state = MOTOR_STATE_IMPULSE;
 				TA1CCR0 = MOTOR_IMPULSE_LENGTH;
@@ -214,7 +214,7 @@ void __attribute__((interrupt(TIMER1_A0_VECTOR))) zerocrossing(void)
 			break;
 
 		case MOTOR_STATE_WAIT:
-			TA1CCR0 = 2; /* 2 * 80uS = 1,6mS */
+			TA1CCR0 = MOTOR_IMPULSE_LENGTH;
 			PIN_SET_HIGH(MOTOR_PIN);
 			motor_state = MOTOR_STATE_IMPULSE;
 			break;

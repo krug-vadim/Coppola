@@ -82,12 +82,16 @@ WASHER_motor_power_set_command(uint8_t *data, SIZE_t cnt)
 	temp = (((uint16_t)data[0]) << 0)
 	     | (((uint16_t)data[1]) << 8);
 
+	temp >>= 1;
+
 	if ( temp == 0 )
 		temp = 0;
-	else if ( temp > (MOTOR_POWER_50HZ - MOTOR_IMPULSE_LENGTH) )
-		temp = MOTOR_POWER_MAX;
+	else if ( temp <= MOTOR_IMPULSE_LENGTH )
+		temp = MOTOR_MAX_WAIT;
+	else if ( temp < MOTOR_MAX_WAIT )
+		temp = MOTOR_MAX_WAIT - temp;
 	else
-		temp = MOTOR_POWER_50HZ - MOTOR_IMPULSE_LENGTH - temp;
+		temp = MOTOR_POWER_MAX;
 
 	washer.motor_power = temp;
 
