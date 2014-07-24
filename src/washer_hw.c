@@ -175,6 +175,8 @@ WASHER_HW_process(void)
 		{
 			if ( washer.motor_power >= MOTOR_POWER_MAX )
 			{
+				/* not good */
+				PIN_SET_HIGH(MOTOR_PIN);
 				motor_state = MOTOR_STATE_IMPULSE;
 				TA1CCR0 = MOTOR_IMPULSE_LENGTH;
 			}

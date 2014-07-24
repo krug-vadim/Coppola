@@ -21,7 +21,7 @@
 #define MOTOR_IMPULSE_LENGTH (2U)   /* 2 * 80uS = 160 uS */
 #define MOTOR_POWER_MAX      (255U)
 #define MOTOR_POWER_50HZ     (117U)
-#define MOTOR_MAX_WAIT       (116U) /* 116 * 80uS = 9.6 mS */
+#define MOTOR_MAX_WAIT       (100U) /* 100 * 80uS = 8 mS */
 
 typedef enum
 {
