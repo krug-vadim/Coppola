@@ -29,26 +29,6 @@ PROTOCOL_PARSER_VOID_ptr PROTOCOL_parse_header(uint8_t data);
 PROTOCOL_PARSER_VOID_ptr PROTOCOL_parse_data(uint8_t data);
 PROTOCOL_PARSER_VOID_ptr PROTOCOL_parse_crc(uint8_t data);
 
-static const char digits_sym[] =
-{
-	'0', '1', '2', '3',
-	'4', '5', '6', '7',
-	'8', '9', 'A', 'B',
-	'C', 'D', 'E', 'F'
-};
-
-void
-PROTOCOL_debug_uint(uint16_t word)
-{
-	char str[] = "0000 ";
-
-	str[0] = digits_sym[((word & 0xF000) >> 12)];
-	str[1] = digits_sym[((word & 0x0F00) >>  8)];
-	str[2] = digits_sym[((word & 0x00F0) >>  4)];
-	str[3] = digits_sym[((word & 0x000F) >>  0)];
-	protocol_io.log(str);
-}
-
 void
 PROTOCOL_init(void)
 {
@@ -97,7 +77,6 @@ PROTOCOL_parse_magic1(uint8_t data)
 		return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_magic1;
 
 	crc = CRC_init();
-	PROTOCOL_debug_uint(crc);
 	protocol_io.log("[i] init crc\r\n");
 
 	crc = CRC_update(crc, data);
@@ -105,9 +84,7 @@ PROTOCOL_parse_magic1(uint8_t data)
 	data_ptr = (uint8_t *)&packet;
 	*data_ptr++ = data;
 
-	PROTOCOL_debug_uint(data);
 	protocol_io.log("[i] found magic byte 1\r\n");
-	PROTOCOL_debug_uint(crc);
 	protocol_io.log("[i] crc\r\n");
 
 	return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_magic2;
@@ -122,9 +99,9 @@ PROTOCOL_parse_magic2(uint8_t data)
 		crc = CRC_update(crc, data);
 		*data_ptr++ = data;
 
-		PROTOCOL_debug_uint(data);
+
 		protocol_io.log("[i] found magic byte 2\r\n");
-		PROTOCOL_debug_uint(crc);
+
 		protocol_io.log("[i] crc\r\n");
 
 		return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_header;
@@ -141,9 +118,7 @@ PROTOCOL_parse_header(uint8_t data)
 	*data_ptr++ = data;
 	crc = CRC_update(crc, data);
 
-	PROTOCOL_debug_uint(data);
 	protocol_io.log("[i] reading header...\r\n");
-	PROTOCOL_debug_uint(crc);
 	protocol_io.log("[i] crc\r\n");
 
 	bytes_needed--;
@@ -163,9 +138,7 @@ PROTOCOL_parse_data(uint8_t data)
 	*data_ptr++ = data;
 	crc = CRC_update(crc, data);
 
-	PROTOCOL_debug_uint(data);
 	protocol_io.log("[i] reading data...\r\n");
-	PROTOCOL_debug_uint(crc);
 	protocol_io.log("[i] crc\r\n");
 
 	bytes_needed--;
