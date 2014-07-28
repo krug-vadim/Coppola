@@ -9,10 +9,8 @@ static WASHER_VALUE_t zerocross_fq_current;
 
 static uint8_t sonar_last_state;
 static uint8_t tacho_last_state;
-static uint8_t zerocross_last_state;
 
-static BOOL_t  relay_is_on;
-static BOOL_t  need_toggle_relay;
+static BOOL_t zerocrossing;
 
 extern WASHER_t washer;
 extern IO_INTERFACE_t washer_io;
@@ -50,6 +48,14 @@ WASHER_HW_adc_init(void)
 }
 
 void
+WASHER_HW_zerocross_interrupt_setup(void)
+{
+	/* change to some HAL */
+	PIN_MODE_INPUT(ZEROCROSS_PIN);
+	P2IES |= ZEROCROSS_PIN;
+}
+
+void
 WASHER_HW_init(void)
 {
 	PIN_MODE_INPUT(ZEROCROSS_PIN);
@@ -69,7 +75,6 @@ WASHER_HW_init(void)
 	PIN_SET_LOW(VALVE_MAIN_PIN);
 	PIN_SET_LOW(VALVE_PRE_PIN);
 
-
 	/* and make them output */
 
 	PIN_MODE_OUTPUT(RELAY_PIN);
@@ -82,6 +87,9 @@ WASHER_HW_init(void)
 	PIN_MODE_OUTPUT(VALVE_PRE_PIN);
 
 	WASHER_HW_adc_init();
+	WASHER_HW_zerocross_interrupt_setup()
+
+	motor_state = MOTOR_STATE_OFF;
 
 	/* Timer A1 ACLK/1, UP 1 second */
 	TA1CCR0 = 0;
@@ -90,8 +98,6 @@ WASHER_HW_init(void)
 	       | ID_0
 	       | MC_1
 	       ;
-
-	motor_state = MOTOR_STATE_OFF;
 }
 
 void
@@ -104,12 +110,13 @@ WASHER_HW_startup(void)
 	tacho_last_state = 0;
 
 	zerocross_last_state = 0;
-
-	relay_is_on = FALSE;
-	need_toggle_relay = FALSE;
+	zerocrossing = FALSE;
 
 	/* adc startup */
 	ADC10CTL0 |= ENC + ADC10SC;
+
+	P2IE  |=  ZEROCROSS_PIN;
+	P2IFG &= ~ZEROCROSS_PIN;
 }
 
 void
@@ -165,30 +172,11 @@ WASHER_HW_process(void)
 		tacho_last_state = pin_state;
 	}
 
-	pin_state = PIN_VALUE(ZEROCROSS_PIN);
-	if( zerocross_last_state != pin_state )
+	if ( zerocrossing )
 	{
-		zerocross_fq_current++;
-		zerocross_last_state = pin_state;
-
-		if ( washer.motor_power && motor_state == MOTOR_STATE_OFF )
-		{
-			if ( washer.motor_power >= MOTOR_POWER_MAX )
-			{
-				/* not good */
-				PIN_SET_HIGH(MOTOR_PIN);
-				motor_state = MOTOR_STATE_IMPULSE;
-				TA1CCR0 = MOTOR_IMPULSE_LENGTH;
-			}
-			else
-			{
-				motor_state = MOTOR_STATE_WAIT;
-				TA1CCR0 = washer.motor_power;
-			}
-		}
+		WASHER_HW_peripherals_set();
+		zerocrossing = FALSE;
 	}
-
-	WASHER_HW_peripherals_set();
 }
 
 void
@@ -238,4 +226,28 @@ void __attribute__((interrupt(TIMER1_A0_VECTOR))) zerocrossing(void)
 void __attribute__((interrupt(ADC10_VECTOR))) ADC10_ISR(void)
 {
 	washer.temperature = ADC10MEM;
+}
+
+void __attribute__((interrupt(PORT2_VECTOR))) ZEROCROSS_PORT(void)
+{
+	P2IES ^= ZEROCROSS_PIN;
+
+	zerocrossing = TRUE;
+	zerocross_fq_current++;
+
+	if ( washer.motor_power && motor_state == MOTOR_STATE_OFF )
+	{
+		if ( washer.motor_power >= MOTOR_POWER_MAX )
+		{
+			/* XXX: дублирование кода */
+			PIN_SET_HIGH(MOTOR_PIN);
+			motor_state = MOTOR_STATE_IMPULSE;
+			TA1CCR0 = MOTOR_IMPULSE_LENGTH;
+		}
+		else
+		{
+			motor_state = MOTOR_STATE_WAIT;
+			TA1CCR0 = washer.motor_power;
+		}
+	}
 }
