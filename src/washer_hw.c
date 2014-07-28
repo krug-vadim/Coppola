@@ -87,7 +87,7 @@ WASHER_HW_init(void)
 	PIN_MODE_OUTPUT(VALVE_PRE_PIN);
 
 	WASHER_HW_adc_init();
-	WASHER_HW_zerocross_interrupt_setup()
+	WASHER_HW_zerocross_interrupt_setup();
 
 	motor_state = MOTOR_STATE_OFF;
 
@@ -109,7 +109,6 @@ WASHER_HW_startup(void)
 	sonar_last_state = 0;
 	tacho_last_state = 0;
 
-	zerocross_last_state = 0;
 	zerocrossing = FALSE;
 
 	/* adc startup */
@@ -193,7 +192,7 @@ WASHER_HW_one_second_tick(void)
 }
 
 /* TIMERA1 interrupt service routine */
-void __attribute__((interrupt(TIMER1_A0_VECTOR))) zerocrossing(void)
+void __attribute__((interrupt(TIMER1_A0_VECTOR))) motor_pwm(void)
 {
 	switch ( motor_state )
 	{
