@@ -194,31 +194,18 @@ WASHER_HW_one_second_tick(void)
 /* TIMERA1 interrupt service routine */
 void __attribute__((interrupt(TIMER1_A0_VECTOR))) motor_pwm(void)
 {
-	switch ( motor_state )
+	PIN_SET_LOW(MOTOR_PIN);
+
+	if ( motor_state == MOTOR_STATE_WAIT )
 	{
-		case MOTOR_STATE_OFF:
-			TA1CCR0 = 0;
-			PIN_SET_LOW(MOTOR_PIN);
-			motor_state = MOTOR_STATE_OFF;
-			break;
-
-		case MOTOR_STATE_WAIT:
-			TA1CCR0 = MOTOR_IMPULSE_LENGTH;
-			PIN_SET_HIGH(MOTOR_PIN);
-			motor_state = MOTOR_STATE_IMPULSE;
-			break;
-
-		case MOTOR_STATE_IMPULSE:
-			TA1CCR0 = 0;
-			PIN_SET_LOW(MOTOR_PIN);
-			motor_state = MOTOR_STATE_OFF;
-			break;
-
-		default:
-			TA1CCR0 = 0;
-			PIN_SET_LOW(MOTOR_PIN);
-			motor_state = MOTOR_STATE_OFF;
-			break;
+		TA1CCR0 = MOTOR_IMPULSE_LENGTH;
+		motor_state = MOTOR_STATE_IMPULSE;
+		PIN_SET_HIGH(MOTOR_PIN);
+	}
+	else
+	{
+		TA1CCR0 = 0;
+		motor_state = MOTOR_STATE_OFF;
 	}
 }
 
@@ -229,24 +216,13 @@ void __attribute__((interrupt(ADC10_VECTOR))) ADC10_ISR(void)
 
 void __attribute__((interrupt(PORT2_VECTOR))) ZEROCROSS_PORT(void)
 {
+	PIN_SET_LOW(MOTOR_PIN);
+
 	P2IES ^= ZEROCROSS_PIN;
 
 	zerocrossing = TRUE;
 	zerocross_fq_current++;
 
-	if ( washer.motor_power && motor_state == MOTOR_STATE_OFF )
-	{
-		if ( washer.motor_power >= MOTOR_POWER_MAX )
-		{
-			/* XXX: дублирование кода */
-			PIN_SET_HIGH(MOTOR_PIN);
-			motor_state = MOTOR_STATE_IMPULSE;
-			TA1CCR0 = MOTOR_IMPULSE_LENGTH;
-		}
-		else
-		{
-			motor_state = MOTOR_STATE_WAIT;
-			TA1CCR0 = washer.motor_power;
-		}
-	}
+	motor_state = MOTOR_STATE_WAIT;
+	TA1CCR0 = washer.motor_power;
 }

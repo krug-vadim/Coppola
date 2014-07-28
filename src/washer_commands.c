@@ -91,7 +91,7 @@ WASHER_motor_power_set_command(uint8_t *data, SIZE_t cnt)
 	else if ( temp < MOTOR_MAX_WAIT )
 		temp = MOTOR_MAX_WAIT - temp;
 	else
-		temp = MOTOR_POWER_MAX;
+		temp = 1;
 
 	washer.motor_power = temp;
 
