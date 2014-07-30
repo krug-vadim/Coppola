@@ -52,7 +52,7 @@ WASHER_HW_zerocross_interrupt_setup(void)
 {
 	/* change to some HAL */
 	PIN_MODE_INPUT(ZEROCROSS_PIN);
-	P2IES |= ZEROCROSS_PIN;
+	P2IES |= (1 << (ZEROCROSS_PIN-8));
 }
 
 void
@@ -114,8 +114,8 @@ WASHER_HW_startup(void)
 	/* adc startup */
 	ADC10CTL0 |= ENC + ADC10SC;
 
-	P2IE  |=  ZEROCROSS_PIN;
-	P2IFG &= ~ZEROCROSS_PIN;
+	P2IE  |=  (1 << (ZEROCROSS_PIN - 8));
+	P2IFG &= ~(1 << (ZEROCROSS_PIN - 8));
 }
 
 void
@@ -218,11 +218,12 @@ void __attribute__((interrupt(PORT2_VECTOR))) ZEROCROSS_PORT(void)
 {
 	PIN_SET_LOW(MOTOR_PIN);
 
-	P2IES ^= ZEROCROSS_PIN;
-
 	zerocrossing = TRUE;
 	zerocross_fq_current++;
 
 	motor_state = MOTOR_STATE_WAIT;
 	TA1CCR0 = washer.motor_power;
+
+	P2IES ^= (1 << (ZEROCROSS_PIN - 8));
+	P2IFG &= ~(1 << (ZEROCROSS_PIN - 8));
 }
