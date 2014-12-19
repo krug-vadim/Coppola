@@ -18,10 +18,7 @@
 
 #define HEATER_TEMP_ANALOG (INCH_5)
 
-#define MOTOR_IMPULSE_LENGTH (2U)   /* 2 * 80uS = 160 uS */
-#define MOTOR_POWER_MAX      (255U)
-#define MOTOR_POWER_50HZ     (117U)
-#define MOTOR_MAX_WAIT       (100U) /* 100 * 80uS = 8 mS */
+#define MOTOR_IMPULSE_LENGTH (150U) /* 150 uS */
 
 typedef enum
 {

@@ -17,12 +17,6 @@ extern IO_INTERFACE_t washer_io;
 
 static MOTOR_STATE_t motor_state;
 
-void delay_us(uint16_t time)
-{
-	for(; time != 0; time--)
-		asm("NOP");/*NOP();__delay_cycles(16);*/
-}
-
 void
 WASHER_HW_adc_init(void)
 {
