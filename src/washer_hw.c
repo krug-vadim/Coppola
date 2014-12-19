@@ -85,10 +85,10 @@ WASHER_HW_init(void)
 
 	motor_state = MOTOR_STATE_OFF;
 
-	/* Timer A1 ACLK/1, UP 1 second */
+	/* Timer A1 SMCLK, UP 1 uS */
 	TA1CCR0 = 0;
 	TA1CCTL0 = 0x10;
-	TA1CTL = TASSEL_1
+	TA1CTL = TASSEL_2
 	       | ID_0
 	       | MC_1
 	       ;
