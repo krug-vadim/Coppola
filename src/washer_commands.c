@@ -366,6 +366,18 @@ WASHER_water_pump_set_command(uint8_t *data, SIZE_t cnt)
 }
 
 BOOL_t
+WASHER_pwm_offset_set_command(uint8_t *data, SIZE_t cnt)
+{
+	if ( cnt < sizeof(washer.pwm_offset) )
+		return FALSE;
+
+	washer.pwm_offset = (((uint16_t)data[0]) << 0)
+	                  | (((uint16_t)data[1]) << 8);
+
+	return TRUE;
+}
+
+BOOL_t
 WASHER_tacho_get_command(uint8_t *data, SIZE_t cnt)
 {
 	answer.type = WASHER_COMMAND_TACHO_ANSWER;

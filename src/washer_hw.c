@@ -216,7 +216,7 @@ void __attribute__((interrupt(PORT2_VECTOR))) ZEROCROSS_PORT(void)
 	zerocross_fq_current++;
 
 	motor_state = MOTOR_STATE_WAIT;
-	TA1CCR0 = washer.motor_power;
+	TA1CCR0 = washer.motor_power + washer.pwm_offset;
 
 	P2IES ^= (1 << (ZEROCROSS_PIN - 8));
 	P2IFG &= ~(1 << (ZEROCROSS_PIN - 8));

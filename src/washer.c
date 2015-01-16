@@ -19,6 +19,7 @@ WASHER_init_washer(void)
 	washer.temperature = 0;
 
 	washer.motor_power = 0;
+	washer.pwm_offset = 0;
 
 	for(i = 0; i < WASHER_PERIPHERAL_COUNT; i++)
 		washer.is_on[i] = FALSE;
@@ -97,6 +98,10 @@ WASHER_parse(uint8_t *data, SIZE_t cnt)
 
 		case WASHER_COMMAND_ZEROCROSS_GET:
 			return WASHER_zerocross_get_command(&data[1], cnt - 1);
+			break;
+
+		case WASHER_COMMAND_PWM_OFFSET_SET:
+			return WASHER_pwm_offset_set_command(&data[1], cnt - 1);
 			break;
 
 		default:

@@ -35,6 +35,7 @@ typedef struct
 	WASHER_VALUE_t temperature;
 
 	WASHER_VALUE_t motor_power;
+	WASHER_VALUE_t pwm_offset;
 
 	WASHER_PERIPHERAL_STATE is_on[WASHER_PERIPHERAL_COUNT];
 }
