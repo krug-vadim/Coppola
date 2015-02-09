@@ -18,6 +18,7 @@ typedef enum
 	WASHER_COMMAND_TEMPERATURE_GET  = 0x16,
 	WASHER_COMMAND_ZEROCROSS_GET    = 0x17,
 	WASHER_COMMAND_PWM_OFFSET_SET   = 0x20,
+	WASHER_COMMAND_BOOT_STRAP_LOADER= 0x21,
 
 	WASHER_COMMAND_TACHO_ANSWER       = 0xF1,
 	WASHER_COMMAND_SONAR_ANSWER       = 0xF2,
@@ -51,6 +52,8 @@ BOOL_t WASHER_temperature_get_command(uint8_t *data, SIZE_t cnt);
 BOOL_t WASHER_zerocross_get_command(uint8_t *data, SIZE_t cnt);
 BOOL_t WASHER_doorlock_get_command(uint8_t *data, SIZE_t cnt);
 BOOL_t WASHER_id_get_command(uint8_t *data, SIZE_t cnt);
+
 BOOL_t WASHER_reset_command(uint8_t *data, SIZE_t cnt);
+BOOL_t WASHER_boot_strap_loader_command(uint8_t *data, SIZE_t cnt);
 
 #endif

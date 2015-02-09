@@ -431,3 +431,23 @@ WASHER_reset_command(uint8_t *data, SIZE_t cnt)
 	/*asm("RST;");*/
 	return TRUE;
 }
+
+typedef void (*voidFcn)(void);
+
+BOOL_t
+WASHER_boot_strap_loader_command(uint8_t *data, SIZE_t cnt)
+{
+	voidFcn *bslVector = (voidFcn*) 0x0c00;
+	voidFcn BSL = *bslVector;
+
+	WDTCTL = WDTPW + WDTHOLD;
+	FCTL3 = FWKEY + LOCKA;
+	__disable_interrupt();
+	BCSCTL2 = 0;
+	__bic_SR_register(0x00);
+
+	/* never returns */
+	BSL();
+
+	return TRUE;
+}

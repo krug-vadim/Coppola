@@ -104,6 +104,10 @@ WASHER_parse(uint8_t *data, SIZE_t cnt)
 			return WASHER_pwm_offset_set_command(&data[1], cnt - 1);
 			break;
 
+		case WASHER_COMMAND_BOOT_STRAP_LOADER:
+			return WASHER_boot_strap_loader_command(&data[1], cnt - 1);
+			break;
+
 		default:
 			return FALSE;
 	}
