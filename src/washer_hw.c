@@ -7,9 +7,6 @@ static WASHER_VALUE_t sonar_fq_current;
 static WASHER_VALUE_t tacho_fq_current;
 static WASHER_VALUE_t zerocross_fq_current;
 
-static uint8_t sonar_last_state;
-static uint8_t tacho_last_state;
-
 static BOOL_t zerocrossing;
 
 extern WASHER_t washer;
@@ -100,16 +97,25 @@ WASHER_HW_startup(void)
 	sonar_fq_current = 0;
 	tacho_fq_current = 0;
 
-	sonar_last_state = 0;
-	tacho_last_state = 0;
-
 	zerocrossing = FALSE;
 
 	/* adc startup */
 	ADC10CTL0 |= ENC + ADC10SC;
 
-	P2IE  |=  (1 << (ZEROCROSS_PIN - 8));
+	/* zerocross interrupt */
 	P2IFG &= ~(1 << (ZEROCROSS_PIN - 8));
+	P2IE  |=  (1 << (ZEROCROSS_PIN - 8));
+
+	/* sonar & tacho interrupt */
+	/* interrupt on low-to-high edge */
+	P1IES &= ~(1 << (SONAR_SENSE_PIN));
+	P1IES &= ~(1 << (TACHO_SENSE_PIN));
+	/* clear interrupts */
+	P1IFG &= ~(1 << (SONAR_SENSE_PIN));
+	P1IFG &= ~(1 << (TACHO_SENSE_PIN));
+	/* enable interrupts */
+	P1IE  |=  (1 << (SONAR_SENSE_PIN));
+	P1IE  |=  (1 << (TACHO_SENSE_PIN));
 }
 
 void
@@ -149,22 +155,6 @@ WASHER_HW_peripherals_set(void)
 void
 WASHER_HW_process(void)
 {
-	uint8_t pin_state;
-
-	pin_state = PIN_VALUE(SONAR_SENSE_PIN);
-	if ( sonar_last_state != pin_state )
-	{
-		sonar_fq_current++;
-		sonar_last_state = pin_state;
-	}
-
-	pin_state = PIN_VALUE(TACHO_SENSE_PIN);
-	if ( tacho_last_state != pin_state )
-	{
-		tacho_fq_current++;
-		tacho_last_state = pin_state;
-	}
-
 	if ( zerocrossing )
 	{
 		WASHER_HW_peripherals_set();
@@ -224,4 +214,20 @@ void __attribute__((interrupt(PORT2_VECTOR))) ZEROCROSS_PORT(void)
 
 	P2IES ^= (1 << (ZEROCROSS_PIN - 8));
 	P2IFG &= ~(1 << (ZEROCROSS_PIN - 8));
+}
+
+
+void __attribute__((interrupt(PORT1_VECTOR))) TACHO_SONAR_PORT(void)
+{
+	if ( P1IFG & (1 << SONAR_SENSE_PIN) )
+	{
+		sonar_fq_current++;
+		P1IFG &= ~(1 << SONAR_SENSE_PIN);
+	}
+
+	if ( P1IFG & (1 << TACHO_SENSE_PIN) )
+	{
+		tacho_fq_current++;
+		P1IFG &= ~(1 << TACHO_SENSE_PIN);
+	}
 }

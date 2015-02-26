@@ -42,6 +42,9 @@ WASHER_startup(void)
 BOOL_t
 WASHER_parse(uint8_t *data, SIZE_t cnt)
 {
+	if ( cnt == 0 )
+		return FALSE;
+
 	switch ( data[0] )
 	{
 		case WASHER_COMMAND_DOORLOCK_SET:
