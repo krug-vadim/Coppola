@@ -1,6 +1,7 @@
 PROGRAM      = Coppola
 
 CC           = D:/dev/msp430/msp430gcc/bin/msp430-elf-gcc
+AS           = D:/dev/msp430/msp430gcc/bin/msp430-elf-as
 OBJCOPY      = D:/dev/msp430/msp430gcc/bin/msp430-elf-objcopy
 
 OUTPUT      := D:/\#io/Coppola
@@ -15,10 +16,10 @@ BUILD_DATE  := $(shell date --iso=seconds)
 
 CFLAGS       =  $(DEVICE_FLAGS) -Os -Wall -pedantic -Werror -DBUILD_DATETIME=\"$(BUILD_DATE)\" -DGITSHA=\"$(GIT_VERSION)\"
 
-
 INCLUDE_PATH = "D:/dev/msp430/msp430gcc/msp430-elf/include"
 LINKER_PATH  = "D:/dev/msp430/msp430gcc/msp430-elf/include"
-LFLAGS      = $(DEVICE_FLAGS) -I$(INCLUDE_PATH) -L$(LINKER_PATH)
+LFLAGS       = $(DEVICE_FLAGS) -I$(INCLUDE_PATH) -L$(LINKER_PATH) -Wl,-Map,output.map
+ASFLAGS      = $(DEVICE_FLAGS) -x assembler-with-cpp -Wa,-gstabs  -Wa,-anlhd
 
 #SOURCES     := $(wildcard src/*.c)
 #SOURCES     := $(wildcard src/*.c)
@@ -34,9 +35,12 @@ SOURCES     := src/main.c \
                src/washer_commands.c
 
 OBJECTS     := $(patsubst %.c, %.o, $(SOURCES))
+LISTING     := $(patsubst %.c, %.lst, $(SOURCES))
 
 # flasher
 #MSP430Flasher.exe -n MSP430G2553 -w Coppola.hex -v -u
+
+.PRECIOUS: %.lst
 
 # top-level rule to create the program.
 all: $(PROGRAM)
@@ -51,6 +55,10 @@ $(PROGRAM) : $(PROGRAM).hex
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
+
+%.lst: %.c
+	$(CC) $(CFLAGS) -S -fverbose-asm $< -o $@
+	$(AS) -alhnd $@ > $@.lst
 
 # cleaning everything that can be automatically recreated with "make".
 clean:

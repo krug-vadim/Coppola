@@ -20,15 +20,15 @@ hw_init(void)
 	WDTCTL = WDTPW + WDTHOLD;
 
 	/* XXX: CHANGE TO ERROR */
-	if (CALBC1_1MHZ == 0xFF || CALDCO_1MHZ == 0xFF)
+	if (CALBC1_8MHZ == 0xFF || CALDCO_8MHZ == 0xFF)
 	{
 		while(TRUE);
 	}
 
 	/* Use Calibration values for 1MHz Clock DCO*/
 	DCOCTL = 0;
-	BCSCTL1 = CALBC1_1MHZ;
-	DCOCTL = CALDCO_1MHZ;
+	BCSCTL1 = CALBC1_8MHZ;
+	DCOCTL = CALDCO_8MHZ;
 
 	/* SMCLK = DCO / DIVS = nMHz */
 	BCSCTL2 = 0;
@@ -42,7 +42,7 @@ hw_init(void)
 	P2DIR |= (1 << 3);
 
 	/* Timer A0 ACLK/1, UP 1 second */
-	TA0CCR0 = 12000;
+	TA0CCR0 = 1200;
 	TA0CCTL0 = 0x10;
 	TA0CTL = TASSEL_1
 	       | ID_0

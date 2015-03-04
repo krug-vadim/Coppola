@@ -25,15 +25,15 @@ UART_hw_init(void)
 
 	UCA0CTL0 = 0x00;                          /* UART, 8N1, LSB */
 	UCA0CTL1 |= UCSSEL_2;                     /* SMCLK */
-	UCA0BR0 = 104;                            /* 1MHz 9600 */
-	UCA0BR1 = 0;                              /* 1MHz 9600 */
+	UCA0BR0 = 0x41;                           /* 8MHz 9600 */
+	UCA0BR1 = 0x03;                           /* 8MHz 9600 */
 	UCA0MCTL = UCBRS0;                        /* Modulation UCBRSx = 1 */
 
 	/* Take UCA0 out of reset */
 	UCA0CTL1 &= ~UCSWRST;
 
-	/*IE2 |= UCA0RXIE;
-	IE2 |= UCA0TXIE;*/
+	IE2 |= UCA0RXIE;
+	/*IE2 |= UCA0TXIE;*/
 }
 
 void
@@ -94,10 +94,7 @@ UART_tx(void)
 BOOL_t
 UART_rx(void)
 {
-	if ( (queue_rx.size - queue_rx.used) == 0 )
-		return FALSE;
-	else
-		return ( QUEUE_write_byte(&queue_rx, UCA0RXBUF) );
+	return ( QUEUE_write_byte(&queue_rx, UCA0RXBUF) );
 }
 
 void
@@ -106,8 +103,8 @@ UART_process(void)
 	if ( UART_CAN_TX() )
 		UART_tx();
 
-	if ( UART_CAN_RX() )
-		UART_rx();
+	/*if ( UART_CAN_RX() )
+		UART_rx();*/
 }
 
 void
@@ -119,3 +116,9 @@ UART_io_init(IO_INTERFACE_t *io)
 	io->byte_write = UART_write_byte;
 	io->log = UART_put;
 }
+
+void __attribute__((interrupt(USCIAB0RX_VECTOR))) UART_rx_irq(void)
+{
+	UART_rx();
+}
+

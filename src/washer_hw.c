@@ -86,7 +86,7 @@ WASHER_HW_init(void)
 	TA1CCR0 = 0;
 	TA1CCTL0 = 0x10;
 	TA1CTL = TASSEL_2
-	       | ID_0
+	       | ID_3
 	       | MC_1
 	       ;
 }
@@ -215,7 +215,6 @@ void __attribute__((interrupt(PORT2_VECTOR))) ZEROCROSS_PORT(void)
 	P2IES ^= (1 << (ZEROCROSS_PIN - 8));
 	P2IFG &= ~(1 << (ZEROCROSS_PIN - 8));
 }
-
 
 void __attribute__((interrupt(PORT1_VECTOR))) TACHO_SONAR_PORT(void)
 {

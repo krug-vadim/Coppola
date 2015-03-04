@@ -77,15 +77,15 @@ PROTOCOL_parse_magic1(uint8_t data)
 		return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_magic1;
 
 	crc = CRC_init();
-	protocol_io.log("[i] init crc\r\n");
+	/*protocol_io.log("[i] init crc\r\n");*/
 
 	crc = CRC_update(crc, data);
 
 	data_ptr = (uint8_t *)&packet;
 	*data_ptr++ = data;
 
-	protocol_io.log("[i] found magic byte 1\r\n");
-	protocol_io.log("[i] crc\r\n");
+	/*protocol_io.log("[i] found magic byte 1\r\n");
+	protocol_io.log("[i] crc\r\n");*/
 
 	return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_magic2;
 }
@@ -99,10 +99,8 @@ PROTOCOL_parse_magic2(uint8_t data)
 		crc = CRC_update(crc, data);
 		*data_ptr++ = data;
 
-
-		protocol_io.log("[i] found magic byte 2\r\n");
-
-		protocol_io.log("[i] crc\r\n");
+		/*protocol_io.log("[i] found magic byte 2\r\n");
+		protocol_io.log("[i] crc\r\n");*/
 
 		return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_header;
 	}
@@ -118,14 +116,14 @@ PROTOCOL_parse_header(uint8_t data)
 	*data_ptr++ = data;
 	crc = CRC_update(crc, data);
 
-	protocol_io.log("[i] reading header...\r\n");
-	protocol_io.log("[i] crc\r\n");
+	/*protocol_io.log("[i] reading header...\r\n");
+	protocol_io.log("[i] crc\r\n");*/
 
 	bytes_needed--;
 	if ( bytes_needed )
 		return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_header;
 
-	protocol_io.log("[i] header readed\r\n");
+	/*protocol_io.log("[i] header readed\r\n");*/
 
 	bytes_needed = packet.header.size;
 
@@ -138,14 +136,14 @@ PROTOCOL_parse_data(uint8_t data)
 	*data_ptr++ = data;
 	crc = CRC_update(crc, data);
 
-	protocol_io.log("[i] reading data...\r\n");
-	protocol_io.log("[i] crc\r\n");
+	/*protocol_io.log("[i] reading data...\r\n");
+	protocol_io.log("[i] crc\r\n");*/
 
 	bytes_needed--;
 	if ( bytes_needed )
 		return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_data;
 
-	protocol_io.log("[i] data readed\r\n");
+	/*protocol_io.log("[i] data readed\r\n");*/
 
 	bytes_needed = sizeof(CRC_t);
 	data_ptr = (uint8_t *)&packet.crc;
@@ -167,12 +165,12 @@ PROTOCOL_parse_crc(uint8_t data)
 
 	if ( (crc == packet.crc) )
 		flags |= PROTOCOL_ACK_FLAG_CRC_OK;
-	else
-		protocol_io.log("[e] wrong CRC\r\n");
+	/*else
+		protocol_io.log("[e] wrong CRC\r\n");*/
 
 	if ( packet.header.version != PROTOCOL_VERSION )
 	{
-		protocol_io.log("[e] wrong protocol version\r\n");
+		/*protocol_io.log("[e] wrong protocol version\r\n");*/
 		return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_magic1;
 	}
 
@@ -183,7 +181,7 @@ PROTOCOL_parse_crc(uint8_t data)
 
 	PROTOCOL_ack_send(flags);
 
-	protocol_io.log("[i] packet parsed\r\n");
+	/*protocol_io.log("[i] packet parsed\r\n");*/
 
 	return (PROTOCOL_PARSER_VOID_ptr)PROTOCOL_parse_magic1;
 }
